@@ -33,6 +33,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@prisma/client": "^4.6.1",
 		"eslint-plugin-svelte3": "^4.0.0"
 	}
 }
