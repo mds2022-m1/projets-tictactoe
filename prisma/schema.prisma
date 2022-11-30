@@ -9,3 +9,51 @@ datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
 }
+
+//  user model
+model Users {
+  id          String   @id @default(uuid())
+  full_name   String
+  pseudo      String
+  created_at  DateTime @default(now())
+  usersmatchs UsersMatchs[]
+  elo         Elo[]
+}
+
+// game model
+model Games {
+  id          String   @id @default(uuid())
+  name        String
+  matchs      Matchs[]
+  elo         Elo[]
+}
+
+// match model
+model Matchs {
+   id           String   @id @default(uuid())
+   started_at   DateTime @default(now())
+   finished_at  DateTime
+   game_id      String
+   game         Games    @relation(fields: [game_id], references: [id])
+   usersmatchs  UsersMatchs[]  
+}
+
+// user match model
+model UsersMatchs {
+  id          String   @id @default(uuid())
+  user_id   String
+  match_id  String
+  score     Int
+  user      Users   @relation(fields: [user_id], references: [id])
+  match     Matchs  @relation(fields: [match_id], references: [id])
+}
+
+// elo model
+model Elo {
+  id          String   @id @default(uuid())
+  user_id     String
+  game_id     String
+  ranking_elo Int
+  user        Users    @relation(fields: [user_id], references: [id])
+  game        Games    @relation(fields: [game_id], references: [id])
+}
