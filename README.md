@@ -37,22 +37,21 @@ You can preview the production build with `npm run preview`.
 
 > To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
 
-
-
 ## Prisma
 
 Dupliquer le fichier **env.env** et renommer le en **.env**
 
 Ce fichier contient le chemin relatif à la base de données.
 
-
 Ouvrir l'interface de prisma
+
 ```bash
 npx prisma studio
 ```
 
-Le fichier *prisma/seed.ts* contient un jeu de données pouvant être inséré dans la base de données. 
-Pour cela il faut éxecuter la commande 
+Le fichier _prisma/seed.ts_ contient un jeu de données pouvant être inséré dans la base de données.
+Pour cela il faut éxecuter la commande
+
 ```bash
 npx prisma db seed
 ```

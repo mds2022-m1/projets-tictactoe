@@ -1,6 +1,6 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import configServerWebsocket from './config';
-import {Server} from 'socket.io';
+import { Server } from 'socket.io';
 
 /** @type {import('vite').UserConfig} */
 const config = {
@@ -10,7 +10,7 @@ const config = {
 			name: 'webSocketServer',
 			configureServer(server) {
 				configServerWebsocket(server.httpServer);
-			}
+			},
 		},
 	],
 };
