@@ -2,38 +2,29 @@
 	import { page } from '$app/stores';
 	import github from '/src/images/github.svg';``
     import account from '/src/images/account.svg';
-    import Router, {location, link} from 'svelte-spa-router';
-    import About from './src/routes/About.svelte';
-    import Home from './src/routes/Home.svelte';
+
 </script>
 
 <header>
 	<div class="corner">
-		<a href="https://github.com/sveltejs/kit">
+		<a href="https://github.com/">
 			<img src={github} alt="GitHub" />
 		</a>
 	</div>
 
-	<nav class="flex h-9 items-center justify-between" aria-label="Global">
-		<svg viewBox="0 0 2 3" aria-hidden="true">
-			<path d="M0,0 L1,2 C1.5,3 1.5,3 2,3 L2,0 Z" />
-		</svg>
+	<nav class="mt-3 flex justify-center space-x-4">
 		<ul>
-			<li>
-			    <a href="/">Accueil</a>
-			<li>
-				<a href="/#/about">À Propos</a>
+			<li aria-current={$page.url.pathname === '/' ? 'page' : undefined}>
+				<a href="/" class="font-bold px-3 py-2 text-slate-700 rounded-lg hover:bg-slate-100 hover:text-slate-900">ACCUEIL</a>
+			</li>
+			<li aria-current={$page.url.pathname.startsWith('/tictactoe') ? 'page' : undefined}>
+				<a href="/tictactoe" class="font-bold px-3 py-2 text-slate-700 rounded-lg hover:bg-slate-100 hover:text-slate-900">TICTACTOE</a>
+			</li>
+			<li aria-current={$page.url.pathname === '/about' ? 'page' : undefined}>
+				<a href="/about" class="font-bold px-3 py-2 text-slate-700 rounded-lg hover:bg-slate-100 hover:text-slate-900">À PROPOS</a>
 			</li>
 		</ul>
-		<svg viewBox="0 0 2 3" aria-hidden="true">
-			<path d="M0,0 L0,3 C0.5,3 0.5,3 1,2 L2,0 Z" />
-		</svg>
 	</nav>
-
-    <Router routes={{
-	'/': Home,
-	'/about': About,
-    }} />
 
 	<div class="corner">
 		<a href="">
@@ -68,18 +59,6 @@
 		object-fit: contain;
 	}
 
-	nav {
-		display: flex;
-		justify-content: center;
-		--background: rgba(255, 255, 255, 0.7);
-	}
-
-	svg {
-		width: 2em;
-		height: 3em;
-		display: block;
-	}
-
 	path {
 		fill: var(--background);
 	}
@@ -112,23 +91,5 @@
 		left: calc(50% - var(--size));
 		border: var(--size) solid transparent;
 		border-top: var(--size) solid var(--color-theme-1);
-	}
-
-	nav a {
-		display: flex;
-		height: 100%;
-		align-items: center;
-		padding: 0 0.5rem;
-		color: var(--color-text);
-		font-weight: 700;
-		font-size: 0.8rem;
-		text-transform: uppercase;
-		letter-spacing: 0.1em;
-		text-decoration: none;
-		transition: color 0.2s linear;
-	}
-
-	a:hover {
-		color: var(--color-theme-1);
 	}
 </style>
