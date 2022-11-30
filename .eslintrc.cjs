@@ -1,29 +1,29 @@
 module.exports = {
-	extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended'],
+	root: true,
 	parser: '@typescript-eslint/parser',
 	parserOptions: {
-		ecmaVersion: 2020,
-		sourceType: 'module',
 		tsconfigRootDir: __dirname,
 		project: ['./tsconfig.json'],
-		extraFileExtensions: ['.svelte']
 	},
-	env: {
-		es6: true,
-		browser: true
+	rules: {
+		'import/no-extraneous-dependencies': ['error', { devDependencies: true }],
+		'import/no-mutable-exports': 0,
+		'no-labels': 0,
+		'no-restricted-syntax': 0,
 	},
+	plugins: ['@typescript-eslint', 'svelte3'],
+	extends: [
+		'typescript-airbnb-prettier-svelte',
+		'plugin:@typescript-eslint/recommended',
+		'plugin:eslint-comments/recommended',
+		'plugin:promise/recommended',
+		'prettier',
+		'plugin:prettier/recommended',
+	],
 	overrides: [
 		{
-			files: ['*.svelte'],
-			processor: 'svelte3/svelte3'
-		}
+			files: ['**/*.svelte'],
+			processor: 'svelte3/svelte3',
+		},
 	],
-	settings: {
-		'svelte3/typescript': require('typescript'),
-		// ignore style tags in Svelte because of Tailwind CSS
-		// See https://github.com/sveltejs/eslint-plugin-svelte3/issues/70
-		'svelte3/ignore-styles': () => true
-	},
-	plugins: ['svelte3', '@typescript-eslint'],
-	ignorePatterns: ['node_modules']
 };
