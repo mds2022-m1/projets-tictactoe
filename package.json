@@ -34,6 +34,7 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@prisma/client": "^4.6.1"
+		"@prisma/client": "^4.6.1",
+		"svelte-spa-router": "^3.3.0"
 	}
 }
