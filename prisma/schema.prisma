@@ -32,7 +32,7 @@ model Games {
 model Matchs {
    id           String   @id @default(uuid())
    started_at   DateTime @default(now())
-   finished_at  DateTime
+   finished_at  DateTime?
    game_id      String
    game         Games    @relation(fields: [game_id], references: [id])
    usersmatchs  UsersMatchs[]  
