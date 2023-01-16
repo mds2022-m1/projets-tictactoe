@@ -1,20 +1,15 @@
-import prisma from '$root/lib/prisma'
-import type { Load } from '@sveltejs/kit'
+import type { error } from '@sveltejs/kit'
+
+// import type { Load } from './$types'
 
 
-export const load: Load = async () => {
-    const matchs = await prisma.matchs.findMany()
-    if(!matchs) {
-        return {
-			headers: { 'Content-Type': 'application/json' },
-			status: 404,
-			body: { error: 'No matchs found' }
-		}	
-    }
+import {
+	getMatchs
+} from '$root/utils/prisma'
 
+export const load = async () => {
+    const matchs = await getMatchs()
     return {
-		headers: { 'Content-Type': 'application/json' },
-		status: 200,
-		body: { matchs }
+		  matchs
     }
-}
+} 
