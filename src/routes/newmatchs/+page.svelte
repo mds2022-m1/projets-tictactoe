@@ -3,7 +3,7 @@
 
 	export let form: ActionData;
 
-	let nameMatchs = '';
+	let nameMatch = '';
 </script>
 
 <form action="/newmatchs" method="POST" autocomplete="off">
@@ -12,11 +12,11 @@
 			<div class="flex flex-col items-center justify-center w-3/4 h-3/4">
 				<div class="flex flex-col items-center justify-center w-full h-1/2">
 					<input
-						name="nameMatchs"
+						name="nameMatch"
 						type="text"
 						class="w-3/4 h-1/2 border-2 border-gray-300 rounded-lg"
 						placeholder="Nom du match"
-						bind:value={nameMatchs}
+						bind:value={nameMatch}
 					/>
 				</div>
 			</div>
