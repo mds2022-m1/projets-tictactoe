@@ -31,6 +31,7 @@ model Games {
 // match model
 model Matchs {
    id           String   @id @default(uuid())
+   name         String
    started_at   DateTime @default(now())
    finished_at  DateTime?
    game_id      String
