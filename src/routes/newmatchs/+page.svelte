@@ -1,8 +1,10 @@
 <script lang="ts">
-	let nameMatchs = ''
+	import type { ActionData } from './$types';
+
+	export let form: ActionData;
+
+	let nameMatchs = '';
 </script>
-
-
 
 <form action="/newmatchs" method="POST" autocomplete="off">
 	<div class="flex flex-col items-center justify-center h-screen">
@@ -14,13 +16,19 @@
 						type="text"
 						class="w-3/4 h-1/2 border-2 border-gray-300 rounded-lg"
 						placeholder="Nom du match"
+						bind:value={nameMatchs}
 					/>
 				</div>
 			</div>
 			<div class="flex flex-col items-center justify-center w-3/4 h-1/4">
-				<button class="w-3/4 h-1/2 bg-blue-500 rounded-lg" type="submit">Créer le match</button
+				<button class="w-3/4 h-1/2 bg-blue-500 rounded-lg" type="submit"
+					>Créer le match</button
 				>
 			</div>
 		</div>
 	</div>
 </form>
+
+{#if form?.success}
+	{JSON.stringify(form?.match)}
+{/if}

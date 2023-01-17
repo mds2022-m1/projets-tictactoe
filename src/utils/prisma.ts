@@ -17,8 +17,9 @@ export async function getMatchs(){
 export async function createMatch(request: Request){
     const form = await request.formData()
 	const nameMatchs = String(form.get('nameMatchs'))
+    
 
-    await prisma.matchs.create({
+    const match = await prisma.matchs.create({
         data: {
             id: nameMatchs,
             started_at: new Date(),
@@ -26,4 +27,6 @@ export async function createMatch(request: Request){
             
         },
     })
+
+    return match;
 }

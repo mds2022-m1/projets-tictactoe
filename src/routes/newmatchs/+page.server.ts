@@ -1,5 +1,7 @@
 import type { error } from '@sveltejs/kit'
-import type { Actions } from './$types';
+import type { Actions, PageData } from './$types';
+
+
 
 
 
@@ -11,6 +13,22 @@ import {
  
 export const actions: Actions = {
   default: async (event) => {
-    await createMatch(event.request)
+    const match = await createMatch(event.request);
+    if (!match) {
+        return {
+            success: false,
+        };
+    }
+    return {
+        success: true,
+        match : match
+    };
   }
 };
+
+
+
+
+
+
+    
