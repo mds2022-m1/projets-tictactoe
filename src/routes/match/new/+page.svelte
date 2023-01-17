@@ -1,9 +1,23 @@
 <script lang="ts">
-	import type { ActionData } from './$types';
+	import type { ActionData, PageData } from './$types';
+	import io from 'socket.io-client';
 
 	export let form: ActionData;
 
-	let nameMatch = '';
+
+	const socket = io();
+
+	if (form?.success) {
+
+		// socket.emit('createMatch', form?.match);
+
+
+		// let match = form?.match
+
+		// console.log(match);
+		
+	}
+
 </script>
 
 <form action="/newmatchs" method="POST" autocomplete="off">
@@ -16,7 +30,6 @@
 						type="text"
 						class="w-3/4 h-1/2 border-2 border-gray-300 rounded-lg"
 						placeholder="Nom du match"
-						bind:value={nameMatch}
 					/>
 				</div>
 			</div>
@@ -28,7 +41,3 @@
 		</div>
 	</div>
 </form>
-
-{#if form?.success}
-	{JSON.stringify(form?.match)}
-{/if}

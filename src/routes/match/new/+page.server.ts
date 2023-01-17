@@ -1,5 +1,5 @@
 import type { error } from '@sveltejs/kit'
-import type { Actions, PageData } from './$types';
+import type { Actions, PageData } from '../$types';
 
 
 
