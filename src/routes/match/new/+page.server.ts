@@ -1,5 +1,6 @@
-import type { error } from '@sveltejs/kit'
-import type { Actions, PageData } from '../$types';
+
+import type { Actions, PageData } from './$types';
+import { redirect } from '@sveltejs/kit';
 
 
 
@@ -19,10 +20,7 @@ export const actions: Actions = {
             success: false,
         };
     }
-    return {
-        success: true,
-        match : match
-    };
+    throw redirect(303, '/match/'+match.id);
   }
 };
 

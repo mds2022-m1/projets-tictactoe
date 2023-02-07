@@ -1,26 +1,7 @@
 <script lang="ts">
-	import type { ActionData, PageData } from './$types';
-	import io from 'socket.io-client';
-
-	export let form: ActionData;
-
-
-	const socket = io();
-
-	if (form?.success) {
-
-		// socket.emit('createMatch', form?.match);
-
-
-		// let match = form?.match
-
-		// console.log(match);
-		
-	}
-
 </script>
 
-<form action="/newmatchs" method="POST" autocomplete="off">
+<form method="POST" autocomplete="off"> 
 	<div class="flex flex-col items-center justify-center h-screen">
 		<div class="flex flex-col items-center justify-center w-1/2 h-1/2 bg-gray-200 rounded-lg">
 			<div class="flex flex-col items-center justify-center w-3/4 h-3/4">
