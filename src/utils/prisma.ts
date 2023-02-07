@@ -13,6 +13,16 @@ export async function getMatchs(){
     })
 }
 
+// get match by id
+export async function getMatchById(id: string){
+    const match = await prisma.matchs.findUnique({
+        where: {
+            id: id
+        }
+    })
+    return match;
+}
+
 // export function createMatch with Save type
 export async function createMatch(request: Request){
     const form = await request.formData()
@@ -26,6 +36,5 @@ export async function createMatch(request: Request){
             
         },
     })
-
     return match;
 }
