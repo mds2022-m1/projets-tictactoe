@@ -2,8 +2,6 @@
 	import type { PageData } from './$types';
 	export let data: PageData;
 	export let form: any;
-
-	
 </script>
 
 <form method="POST" autocomplete="off">
@@ -25,8 +23,8 @@
 				{/if}
 			</div>
 
-			{#if form?.error.game_id}
-				<p class="text-red-500">{form.error.game_id}</p>
+			{#if form?.errors.game_id}
+				<p class="text-red-500">{form.errors.game_id}</p>
 			{/if}
 
 			<div class="flex flex-col items-center justify-center w-3/4 h-3/4">
@@ -37,8 +35,8 @@
 						class="w-3/4 h-1/2 border-2 border-gray-300 rounded-lg"
 						placeholder="Nom du match"
 					/>
-					{#if form?.error.name}
-						<p class="text-red-500">{form.error.name}</p>
+					{#if form?.errors.name}
+						<p class="text-red-500">{form.errors.name}</p>
 					{/if}
 				</div>
 			</div>
