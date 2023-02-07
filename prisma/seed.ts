@@ -16,7 +16,7 @@ async function seed() {
     const user2 = await prisma.users.create({ data: { full_name: 'Second personne', pseudo: 'peseudo2'} })
     const user2_id = user2.id
 
-    const matchs1 = await prisma.matchs.create({ data: { finished_at: new Date('2023-01-01'), game_id: game_id } })
+    const matchs1 = await prisma.matchs.create({ data: {name:"Name", finished_at: new Date('2023-01-01'), game_id: game_id } })
     const matchs1_id = matchs1.id
 
     const usermatchs1 = await prisma.usersMatchs.create({ data: { user_id: user1_id, match_id: matchs1_id, score: -1 } })
