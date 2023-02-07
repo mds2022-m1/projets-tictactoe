@@ -1,9 +1,10 @@
 import prisma from '$root/lib/prisma'
+import type { Match } from '@prisma/client'
 
 // export function getMatchs with Load type
 export async function getMatchs(){
-    const matchs = await prisma.matchs.findMany()
-    return matchs.map((match) => {
+    const matchs = await prisma.match.findMany()
+    return matchs.map((match: Match) => {
         return {
             id: match.id,
             started_at: match.started_at,
@@ -15,7 +16,7 @@ export async function getMatchs(){
 
 // get match by id
 export async function getMatchById(id: string){
-    const match = await prisma.matchs.findUnique({
+    const match = await prisma.match.findUnique({
         where: {
             id: id
         }
@@ -23,18 +24,30 @@ export async function getMatchById(id: string){
     return match;
 }
 
-// export function createMatch with Save type
-export async function createMatch(request: Request){
-    const form = await request.formData()
-	const nameMatch = String(form.get('nameMatch'))
-    
-
-    const match = await prisma.matchs.create({
+// interface MatchInput 
+interface MatchInput {
+    name: string;
+    game_id: string;
+}
+// export function createMatch
+export async function createMatch(matchInput: MatchInput){
+    const match = await prisma.match.create({
         data: {
-            name: nameMatch,
-            game_id: "759857d8-95ad-4441-bdbd-1ee4bbf1990b"
-            
+            name: matchInput.name,
+            game_id: matchInput.game_id,
         },
     })
     return match;
+}
+
+
+// export function getGames with Load type
+export async function getGames(){
+    const games = await prisma.game.findMany()
+    return games.map((game) => {
+        return {
+            id: game.id,
+            name: game.name,
+        }
+    })
 }
