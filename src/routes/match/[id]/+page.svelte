@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { PageData } from './$types';
 	import io from 'socket.io-client';
-    import Chat from './chat.svelte';
 
     interface Chat {
         name: string;
@@ -37,4 +36,3 @@
     {/if} -->
 {/if}
 
-<Chat chats={tempo} />
