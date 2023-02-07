@@ -11,41 +11,42 @@ datasource db {
 }
 
 //  user model
-model Users {
+model User {
   id          String   @id @default(uuid())
   full_name   String
   pseudo      String
   created_at  DateTime @default(now())
-  usersmatchs UsersMatchs[]
+  user_matches  UserMatch[]
   elo         Elo[]
 }
 
 // game model
-model Games {
+model Game {
   id          String   @id @default(uuid())
   name        String
-  matchs      Matchs[]
+  matches      Match[]
   elo         Elo[]
 }
 
 // match model
-model Matchs {
+model Match {
    id           String   @id @default(uuid())
+   name         String
    started_at   DateTime @default(now())
-   finished_at  DateTime
+   finished_at  DateTime?
    game_id      String
-   game         Games    @relation(fields: [game_id], references: [id])
-   usersmatchs  UsersMatchs[]  
+   game         Game    @relation(fields: [game_id], references: [id])
+   user_matches  UserMatch[]  
 }
 
 // user match model
-model UsersMatchs {
+model UserMatch {
   id          String   @id @default(uuid())
   user_id   String
   match_id  String
   score     Int
-  user      Users   @relation(fields: [user_id], references: [id])
-  match     Matchs  @relation(fields: [match_id], references: [id])
+  user      User   @relation(fields: [user_id], references: [id])
+  match     Match  @relation(fields: [match_id], references: [id])
 }
 
 // elo model
@@ -54,6 +55,6 @@ model Elo {
   user_id     String
   game_id     String
   ranking_elo Int
-  user        Users    @relation(fields: [user_id], references: [id])
-  game        Games    @relation(fields: [game_id], references: [id])
+  user        User    @relation(fields: [user_id], references: [id])
+  game        Game    @relation(fields: [game_id], references: [id])
 }

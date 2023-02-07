@@ -56,3 +56,9 @@ Pour cela il faut éxecuter la commande
 ```bash
 npx prisma db seed
 ```
+
+
+Generer les types prisma 
+```bash
+npx prisma generate
+```

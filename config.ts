@@ -1,5 +1,5 @@
 import { Server } from 'socket.io';
-import { Server as HttpServer} from 'node:http'
+import { Server as HttpServer } from 'node:http'
 
 
 
@@ -10,15 +10,21 @@ export default function configServerWebsocket(server: HttpServer) {
 
     // connection event
     io.on('connect', (socket) => {
-        socket.emit('eventFromServer', 'Hello from the server')
-        // print out the message from the client
-        socket.on('eventFromClient', (data) => {
-            console.log("Message from client: ", data);
-            // send a message back to the client
-            socket.emit('eventFromServer', "message recu de la part du client"+data);
-            // print id of the client
-            console.log("id client: ", socket.id);
-    
-        })
-    })
+
+        
+        
+
+        console.log("new client connected");
+        socket.on('joinMatch', (match) => {
+            socket.join(match.id);
+            // log room members
+            console.log(io.sockets.adapter.rooms);
+            
+            io.emit('matchUpdate', {
+                match: match,
+                action: 'create',
+                idUser: socket.id
+            });
+        });
+    });
 }
