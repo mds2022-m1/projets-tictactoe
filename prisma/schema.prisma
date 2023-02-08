@@ -44,7 +44,7 @@ model UserMatch {
   id          String   @id @default(uuid())
   user_id   String
   match_id  String
-  score     Int
+  score     Int?
   user      User   @relation(fields: [user_id], references: [id])
   match     Match  @relation(fields: [match_id], references: [id])
 }
