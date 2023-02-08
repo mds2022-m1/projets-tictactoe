@@ -6,7 +6,6 @@ import {
   createMatch
 } from '$root/utils/prisma'
 import { z } from "zod";
-import { invalid_attribute_name_character } from 'svelte/internal';
 
 // shema for match name required and game required and not empty
 const matchSchema = z.object({
