@@ -14,7 +14,7 @@ export const load: PageServerLoad = async ({ params, cookies }) => {
     if (tastyCookie) {
         const perso = await getUserById(tastyCookie);
 
-        const match = await getMatchAndUserMatchById(params.id)
+        let match = await getMatchAndUserMatchById(params.id)
 
         const userIds = match?.user_matches.map((userMatch) => userMatch.user_id);
 
@@ -26,6 +26,8 @@ export const load: PageServerLoad = async ({ params, cookies }) => {
             const userMatch = await createUserMatch(params.id, perso.id)
         }
 
+        match = await getMatchAndUserMatchById(params.id) 
+
         if (!match) {
             return {
                 success: false,
@@ -33,7 +35,8 @@ export const load: PageServerLoad = async ({ params, cookies }) => {
         }
         return {
             success: true,
-            match: match
+            match: match,
+            userId: perso.id
         }
     }
     throw redirect(303, '/');
