@@ -1,9 +1,9 @@
-import prisma from '$root/lib/prisma'
+import {db} from '$root/lib/database'
 import type { Match } from '@prisma/client'
 
 // export function getMatchs with Load type
 export async function getMatchs() {
-    const matchs = await prisma.match.findMany()
+    const matchs = await db.match.findMany()
     return matchs.map((match: Match) => {
         return {
             id: match.id,
@@ -16,7 +16,7 @@ export async function getMatchs() {
 
 // get match by id
 export async function getMatchById(id: string) {
-    const match = await prisma.match.findUnique({
+    const match = await db.match.findUnique({
         where: {
             id: id
         }
@@ -31,7 +31,7 @@ interface MatchInput {
 }
 // export function createMatch
 export async function createMatch(matchInput: MatchInput) {
-    const match = await prisma.match.create({
+    const match = await db.match.create({
         data: {
             name: matchInput.name,
             game_id: matchInput.game_id,
@@ -42,7 +42,7 @@ export async function createMatch(matchInput: MatchInput) {
 
 // get match and userMatch by id of match
 export async function getMatchAndUserMatchById(id: string) {
-    const match = await prisma.match.findUnique({
+    const match = await db.match.findUnique({
         where: {
             id: id
         },
@@ -55,7 +55,7 @@ export async function getMatchAndUserMatchById(id: string) {
 
 // insert userMatch by id of match and id of user
 export async function createUserMatch(match_id: string, user_id: string) {
-    const userMatch = await prisma.userMatch.create({
+    const userMatch = await db.userMatch.create({
         data: {
             match_id: match_id,
             user_id: user_id,
@@ -67,7 +67,7 @@ export async function createUserMatch(match_id: string, user_id: string) {
 
 // export function getGames with Load type
 export async function getGames() {
-    const games = await prisma.game.findMany()
+    const games = await db.game.findMany()
     return games.map((game) => {
         return {
             id: game.id,
@@ -78,7 +78,7 @@ export async function getGames() {
 
 // get User By Id
 export async function getUserById(id: string) {
-    const user = await prisma.user.findUnique({
+    const user = await db.user.findUnique({
         where: {
             id: id
         }
