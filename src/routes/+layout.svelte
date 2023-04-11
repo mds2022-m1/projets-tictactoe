@@ -12,7 +12,7 @@
 <nav>
 	<header class="bg-gray-800 text-white flex justify-between items-center px-4 py-3">
 		<div class="flex items-center">
-			<a href="#" class="font-bold text-xl">Tictactoe</a>
+			<a href="/" class="font-bold text-xl">Tictactoe</a>
 		</div>
 		<div class="flex items-center">
 			{#if !$page.data.user}
@@ -21,6 +21,7 @@
 			{/if}
 
 			{#if $page.data.user}
+				<a href="/match/new">Créer une partie</a>
 				<form
 					class="logout mx-3 hover:text-gray-400"
 					action="/logout"
