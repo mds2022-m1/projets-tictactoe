@@ -13,8 +13,11 @@ datasource db {
 //  user model
 model User {
   id          String   @id @default(uuid())
-  full_name   String
-  pseudo      String
+  email       String   @unique
+  passwordHash    String
+  userAuthToken String @unique
+  full_name   String?
+  pseudo      String?
   created_at  DateTime @default(now())
   user_matches  UserMatch[]
   elo         Elo[]
