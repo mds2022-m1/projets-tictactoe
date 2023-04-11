@@ -1,5 +1,7 @@
 <script>
 	import '../app.css';
+	import { applyAction, enhance } from '$app/forms';
+	import { invalidateAll } from '$app/navigation';
 	import { page } from '$app/stores';
 </script>
 
@@ -16,6 +18,22 @@
 			{#if !$page.data.user}
 				<a href="/login" class="mx-3 hover:text-gray-400">Connexion</a>
 				<a href="/register" class="mx-3 hover:text-gray-400">Inscription</a>
+			{/if}
+
+			{#if $page.data.user}
+				<form
+					class="logout mx-3 hover:text-gray-400"
+					action="/logout"
+					method="POST"
+					use:enhance={() => {
+						return async ({ result }) => {
+							invalidateAll();
+							await applyAction(result);
+						};
+					}}
+				>
+					<button type="submit">Déconnexion</button>
+				</form>
 			{/if}
 		</div>
 	</header>
