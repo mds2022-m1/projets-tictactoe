@@ -14,6 +14,7 @@
 		</div>
 		<div class="flex items-center">
 			{#if !$page.data.user}
+				<a href="/login" class="mx-3 hover:text-gray-400">Connexion</a>
 				<a href="/register" class="mx-3 hover:text-gray-400">Inscription</a>
 			{/if}
 		</div>
