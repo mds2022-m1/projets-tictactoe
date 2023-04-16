@@ -14,6 +14,10 @@ export const actions = {
 			expires: new Date(0),
 		});
 
+		cookies.delete('sessionID');
+		
+
+
 		// redirect the user
 		throw redirect(302, '/login');
 	},
