@@ -35,9 +35,10 @@ export default function configServerWebsocket(server: HttpServer) {
 			userID: socket.userID,
 		});
 
-		socket.on('test', (data) => {
-			console.log(data);
-		});
-
+		// join room by room id
+		socket.on("join", (roomId: string) => {
+            socket.join(roomId);
+            console.log(`${socket.userID} joined room ${roomId}`);
+        });
 	});
 }
