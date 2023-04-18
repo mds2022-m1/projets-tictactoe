@@ -16,10 +16,34 @@
 		isPlayerTurn = true;
 	}
 
+	let board = Array(9).fill(null);
 	const roomId = match.id;
 
 	$: {
 		socket.emit('join', roomId);
+
+		socket.on('opponentMove', (cellIndex: number) => {
+			board[cellIndex] = 'O';
+			isPlayerTurn = true;
+		});
 	}
 	
+	function handleClick(cellIndex: number) {
+		if (!isPlayerTurn || board[cellIndex]) return;
+		board[cellIndex] = 'X';
+		isPlayerTurn = false;
+		
+		socket.emit('move', { roomId, cellIndex });
+	}
 </script>
+<div class="flex flex-wrap w-48">
+	{#each board as cell, index}
+		<button
+			class="w-1/3 h-16 border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300 text-xl font-bold text-blue-600"
+			on:click={() => handleClick(index)}
+			disabled={!isPlayerTurn || cell}
+		>
+			{cell || '-'}
+		</button>
+	{/each}
+</div>

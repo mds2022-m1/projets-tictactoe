@@ -40,5 +40,10 @@ export default function configServerWebsocket(server: HttpServer) {
             socket.join(roomId);
             console.log(`${socket.userID} joined room ${roomId}`);
         });
+
+		// move
+		socket.on("move", ({ roomId, cellIndex }) => {
+            socket.to(roomId).emit("opponentMove", cellIndex);
+        });
 	});
 }
