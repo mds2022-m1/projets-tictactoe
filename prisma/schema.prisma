@@ -36,6 +36,7 @@ model Match {
    id           String   @id @default(uuid())
    name         String
    moves        String?
+   last_player  String?
    started_at   DateTime @default(now())
    finished_at  DateTime?
    game_id      String
