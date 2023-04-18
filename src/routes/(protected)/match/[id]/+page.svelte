@@ -42,21 +42,17 @@
 		
 		
 		if (moves) {
-			if (moves.playerID1 === playerID) {
-				moves.player1Move.forEach((cellIndex: number) => {
-					board[cellIndex] = 'X';
-				});
-				moves.player2Move.forEach((cellIndex: number) => {
-					board[cellIndex] = 'O';
-				});
-			} else {
-				moves.player2Move.forEach((cellIndex: number) => {
-					board[cellIndex] = 'X';
-				});
-				moves.player1Move.forEach((cellIndex: number) => {
-					board[cellIndex] = 'O';
-				});
-			}
+			const player1Symbol = moves.playerID1 === playerID ? 'X' : 'O';
+			const player2Symbol = player1Symbol === 'X' ? 'O' : 'X';
+
+			moves.player1Move.forEach((cellIndex: number) => {
+				board[cellIndex] = player1Symbol;
+			});
+
+			moves.player2Move.forEach((cellIndex: number) => {
+				board[cellIndex] = player2Symbol;
+			});
+
 
 			if (match.last_player === playerID) {
 				isPlayerTurn = false;

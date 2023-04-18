@@ -52,55 +52,41 @@ export default function configServerWebsocket(server: HttpServer) {
 
 		// move
 		socket.on("move", async ({ roomId, cellIndex, playerID }) => {
-
 			const match = await getMatchById(roomId);
 			if (!match) {
 				return;
 			}
-
+		
 			const { moves, user_matches } = match;
-
-			// player_creator select by user_matches.creator = true
+		
 			const player_creator = user_matches.find((user_match) => user_match.creator === true);
 			const player_opponent = user_matches.find((user_match) => user_match.creator === false);
-
-			if (!player_creator || !player_opponent ) {
+		
+			if (!player_creator || !player_opponent) {
 				return;
 			}
-
+		
 			let move: Move;
-
-			if(moves) {
-				// json parse moves
+		
+			if (moves) {
 				move = JSON.parse(moves);
-				move.playerID1 === playerID ? move.player1Move.push(cellIndex) : move.player2Move.push(cellIndex);
-				
-			}else{
+			} else {
 				move = {
 					playerID1: player_creator.user_id,
 					player1Move: [],
 					playerID2: player_opponent.user_id,
 					player2Move: []
-				}
-
-				// add cellIndex to playerID in move
-				move.playerID1 === playerID ? move.player1Move.push(cellIndex) : move.player2Move.push(cellIndex);
+				};
 			}
-
-			// encode move to string
+		
+			move.playerID1 === playerID ? move.player1Move.push(cellIndex) : move.player2Move.push(cellIndex);
+		
 			const move_string = JSON.stringify(move);
 			updateMovesMatchById(roomId, move_string, playerID);
-			
-			
-
-
-
-			
-			
-			
-
-            socket.to(roomId).emit("opponentMove", cellIndex);
-        });
+		
+			socket.to(roomId).emit("opponentMove", cellIndex);
+		});
+		
 	});
 }
 
