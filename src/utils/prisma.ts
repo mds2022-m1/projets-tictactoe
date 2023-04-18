@@ -54,15 +54,16 @@ export async function getMatchAndUserMatchById(id: string) {
 }
 
 // insert userMatch by id of match and id of user
-export async function createUserMatch(match_id: string, user_id: string) {
-	const userMatch = await db.userMatch.create({
-		data: {
-			match_id,
-			user_id,
-			score: null,
-		},
-	});
-	return userMatch;
+export async function createUserMatch(match_id: string, user_id: string, creator: boolean) {
+    const userMatch = await db.userMatch.create({
+        data: {
+            match_id: match_id,
+            user_id: user_id,
+            creator: creator,
+            score: null,
+        }
+    })
+    return userMatch;
 }
 
 // export function getGames with Load type

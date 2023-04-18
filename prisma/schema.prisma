@@ -45,6 +45,8 @@ model Match {
 // user match model
 model UserMatch {
   id          String   @id @default(uuid())
+  creator    Boolean
+  join      DateTime @default(now())
   user_id   String
   match_id  String
   score     Int?
