@@ -1,4 +1,4 @@
-import type { Match } from '@prisma/client';
+import type { Match, UserMatch } from '@prisma/client';
 import { db } from '$root/lib/database';
 
 // export function getMatchs with Load type
@@ -28,6 +28,7 @@ export async function getMatchById(id: string) {
 interface MatchInput {
 	name: string;
 	game_id: string;
+	moves: string;
 }
 // export function createMatch
 export async function createMatch(matchInput: MatchInput) {
@@ -85,4 +86,18 @@ export async function getUserById(id: string) {
 		},
 	});
 	return user;
+}
+
+
+// update moves Match by id
+export async function updateMovesMatchById(id: string, moves: string) {
+	const match = await db.match.update({
+		where: {
+			id,
+		},
+		data: {
+			moves: moves,
+		},
+	});
+	return match;
 }

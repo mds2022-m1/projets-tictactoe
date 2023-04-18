@@ -5,10 +5,22 @@
 
 	export let data: PageData;
 
+	interface Move {
+		playerID1: string;
+		player1Move: number[];
+		playerID2: string;
+		player2Move: number[];
+	}
+
 	const socket: Socket = getContext('socket') as Socket;
 
 	let isPlayerTurn = false;
 	const { user, match } = data;
+	const playerID = user.id;
+	// convert moves(string) to json and parse it with Move interface
+	let moves : Move = JSON.parse(match.moves);
+
+
 
 	const userMatch = match.user_matches.find((userMatch) => userMatch.user_id === user.id);
 
@@ -19,6 +31,7 @@
 	let board = Array(9).fill(null);
 	const roomId = match.id;
 
+
 	$: {
 		socket.emit('join', roomId);
 
@@ -26,6 +39,31 @@
 			board[cellIndex] = 'O';
 			isPlayerTurn = true;
 		});
+		
+		
+		if (moves) {
+			if (moves.playerID1 === playerID) {
+				moves.player1Move.forEach((cellIndex: number) => {
+					board[cellIndex] = 'X';
+				});
+				moves.player2Move.forEach((cellIndex: number) => {
+					board[cellIndex] = 'O';
+				});
+			} else {
+				moves.player2Move.forEach((cellIndex: number) => {
+					board[cellIndex] = 'X';
+				});
+				moves.player1Move.forEach((cellIndex: number) => {
+					board[cellIndex] = 'O';
+				});
+			}
+
+			if (match.last_player === playerID) {
+				isPlayerTurn = false;
+			} else {
+				isPlayerTurn = true;
+			}
+		}
 	}
 	
 	function handleClick(cellIndex: number) {
@@ -33,7 +71,7 @@
 		board[cellIndex] = 'X';
 		isPlayerTurn = false;
 		
-		socket.emit('move', { roomId, cellIndex });
+		socket.emit('move', { roomId, cellIndex, playerID});
 	}
 </script>
 <div class="flex flex-wrap w-48">
