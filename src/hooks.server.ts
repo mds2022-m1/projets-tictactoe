@@ -1,6 +1,13 @@
 import type { Handle } from '@sveltejs/kit';
 import { db } from '$root/lib/database';
 
+// Extend the Locals type to add a 'user' property
+interface CustomLocals extends Record<string, any> {
+	user?: {
+		email: string;
+		id: string;
+	};
+}
 
 export const handle: Handle = async ({ event, resolve }) => {
 	// get cookies from browser
@@ -14,13 +21,18 @@ export const handle: Handle = async ({ event, resolve }) => {
 	// find the user based on the session
 	const user = await db.user.findUnique({
 		where: { userAuthToken: session },
-		select: { email: true },
+		select: { 
+			email: true,
+			id: true,
+		},
 	});
 
 	// if `user` exists set `events.local`
 	if (user) {
-		event.locals.user = {
-			name: user.email,
+		// Cast event.locals to CustomLocals so it has the 'user' property
+		(event.locals as CustomLocals).user = {
+			email: user.email,
+			id: user.id,
 		};
 	}
 
