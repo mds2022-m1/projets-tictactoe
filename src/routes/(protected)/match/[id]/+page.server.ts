@@ -1,23 +1,29 @@
 import { redirect } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
-import { getMatchAndUserMatchById, createUserMatch, getUserById } from '$root/utils/prisma';
+import { getMatchAndUserMatchById, createUserMatch } from '$root/utils/prisma';
 
-export const load: PageServerLoad = async ({ params, cookies }) => {
-	const tastyCookie = cookies.get('username');
+interface CustomLocals extends Record<string, any> {
+    user?: {
+        email: string;
+        id: string;
+    };
+}
 
-	if (tastyCookie) {
-		const perso = await getUserById(tastyCookie);
+export const load: PageServerLoad = async ({ params: { id }, locals }: { params: { id: string }, locals: CustomLocals }) => {
 
-		let match = await getMatchAndUserMatchById(params.id);
+	    const { user } = locals as CustomLocals;
+
+
+		let match = await getMatchAndUserMatchById(id);
 
 		const userIds = match?.user_matches.map((userMatch) => userMatch.user_id);
 
-		if (!perso?.id || (!userIds?.includes(perso.id) && match?.user_matches.length === 2)) {
+		if (!user?.id || (!userIds?.includes(user.id) && match?.user_matches.length === 2)) {
 			throw redirect(303, '/');
 		}
 
-		if (!userIds?.includes(perso.id)) {
-			const userMatch = await createUserMatch(params.id, perso.id);
+		if (!userIds?.includes(user.id)) {
+			const userMatch = await createUserMatch(id, user.id);
 		}
 
 		match = await getMatchAndUserMatchById(params.id);
@@ -30,8 +36,7 @@ export const load: PageServerLoad = async ({ params, cookies }) => {
 		return {
 			success: true,
 			match,
-			userId: perso.id,
+			userId: user.id,
 		};
-	}
 	throw redirect(303, '/');
 };
