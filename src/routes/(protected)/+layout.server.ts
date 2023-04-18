@@ -6,7 +6,6 @@ interface CustomLocals extends Record<string, any> {
 	};
 }
 export const load = async ({ locals }: { locals: CustomLocals }) => {
-
 	// redirect user if not logged in
 	if (!locals.user) {
 		throw redirect(302, '/');

@@ -48,6 +48,5 @@
 	});
 </script>
 
-
 <!-- child -->
 <slot />

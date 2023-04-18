@@ -9,7 +9,7 @@ const config = {
 			name: 'webSocketServer',
 			configureServer(server) {
 				configServerWebsocket(server.httpServer);
-			}
+			},
 		},
 	],
 };
