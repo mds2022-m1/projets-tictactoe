@@ -5,20 +5,18 @@
 
 	export let data: PageData;
 
-	interface Move {
-		playerID1: string;
-		player1Move: number[];
-		playerID2: string;
-		player2Move: number[];
-	}
+	interface GamePlayers {
+	[playerID: string]: {
+	  playerID: string;
+	  playerMove: number[];
+	};
+  }
 
 	const socket: Socket = getContext('socket') as Socket;
 
 	let isPlayerTurn = false;
 	const { user, match } = data;
-	const playerID = user.id;
-	// convert moves(string) to json and parse it with Move interface
-	let moves : Move = JSON.parse(match.moves);
+	const playerIDSocket = user.id;
 
 
 
@@ -41,24 +39,38 @@
 		});
 		
 		
-		if (moves) {
-			const player1Symbol = moves.playerID1 === playerID ? 'X' : 'O';
-			const player2Symbol = player1Symbol === 'X' ? 'O' : 'X';
+		if (match.moves) {
+			const gamePlayers: GamePlayers = JSON.parse(match.moves);
 
-			moves.player1Move.forEach((cellIndex: number) => {
-				board[cellIndex] = player1Symbol;
-			});
+			
+			// const player1Symbol = moves.playerID1 === playerID ? 'X' : 'O';
+			// const player2Symbol = player1Symbol === 'X' ? 'O' : 'X';
 
-			moves.player2Move.forEach((cellIndex: number) => {
-				board[cellIndex] = player2Symbol;
-			});
+			const gamePlayersMe = gamePlayers[playerIDSocket];
+			const gamePlayersOpponent = gamePlayers[match.user_matches.find((userMatch) => userMatch.user_id !== user.id)?.user_id];
+
+			
+
+			// gamePlayers[playerIDSocket].playerMove.forEach((cellIndex: number) => {
+			// 	board[cellIndex] = 'X';
+			// });
 
 
-			if (match.last_player === playerID) {
-				isPlayerTurn = false;
-			} else {
-				isPlayerTurn = true;
-			}
+
+			// moves.player1Move.forEach((cellIndex: number) => {
+			// 	board[cellIndex] = player1Symbol;
+			// });
+
+			// moves.player2Move.forEach((cellIndex: number) => {
+			// 	board[cellIndex] = player2Symbol;
+			// });
+
+
+			// if (match.last_player === playerID) {
+			// 	isPlayerTurn = false;
+			// } else {
+			// 	isPlayerTurn = true;
+			// }
 		}
 	}
 	
@@ -67,7 +79,9 @@
 		board[cellIndex] = 'X';
 		isPlayerTurn = false;
 		
-		socket.emit('move', { roomId, cellIndex, playerID});
+		console.log('playerIDSocket', playerIDSocket);
+		
+		socket.emit('move', { roomId, cellIndex, playerIDSocket});
 	}
 </script>
 <div class="flex flex-wrap w-48">
@@ -81,3 +95,5 @@
 		</button>
 	{/each}
 </div>
+
+{ JSON.stringify(user)}

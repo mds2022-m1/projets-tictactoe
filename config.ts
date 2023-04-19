@@ -3,12 +3,14 @@ import { Server as HttpServer } from 'node:http';
 import { v4 as uuidv4 } from 'uuid';
 
 
-interface Move {
-	playerID1: string;
-	player1Move: number[];
-	playerID2: string;
-	player2Move: number[];
-}
+interface GamePlayers {
+	[playerID: string]: {
+	  playerID: string;
+	  playerMove: number[];
+	};
+  }
+  
+
 
 
 // function for init server socket
@@ -51,12 +53,12 @@ export default function configServerWebsocket(server: HttpServer) {
         });
 
 		// move
-		socket.on("move", async ({ roomId, cellIndex, playerID }) => {
+		socket.on("move", async ({ roomId, cellIndex, playerIDSocket }) => {
 			const match = await getMatchById(roomId);
 			if (!match) {
 				return;
-			}
-		
+			}			
+
 			const { moves, user_matches } = match;
 		
 			const player_creator = user_matches.find((user_match) => user_match.creator === true);
@@ -66,23 +68,29 @@ export default function configServerWebsocket(server: HttpServer) {
 				return;
 			}
 		
-			let move: Move;
+			let gamePlayers: GamePlayers;
 		
 			if (moves) {
-				move = JSON.parse(moves);
+				gamePlayers = JSON.parse(moves);
 			} else {
-				move = {
-					playerID1: player_creator.user_id,
-					player1Move: [],
-					playerID2: player_opponent.user_id,
-					player2Move: []
+				gamePlayers = {
+					[player_creator.user_id]: {
+						playerID: player_creator.user_id,
+						playerMove: [],
+					  },
+					  [player_opponent.user_id]: {
+						playerID: player_opponent.user_id,
+						playerMove: [],
+					  },
 				};
 			}
 		
-			move.playerID1 === playerID ? move.player1Move.push(cellIndex) : move.player2Move.push(cellIndex);
+
+			
+			gamePlayers[playerIDSocket].playerMove.push(cellIndex);
 		
-			const move_string = JSON.stringify(move);
-			updateMovesMatchById(roomId, move_string, playerID);
+			const move_string = JSON.stringify(gamePlayers);
+			updateMovesMatchById(roomId, move_string, playerIDSocket);
 		
 			socket.to(roomId).emit("opponentMove", cellIndex);
 		});
