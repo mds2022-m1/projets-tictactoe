@@ -41,36 +41,24 @@
 		
 		if (match.moves) {
 			const gamePlayers: GamePlayers = JSON.parse(match.moves);
-
 			
-			// const player1Symbol = moves.playerID1 === playerID ? 'X' : 'O';
-			// const player2Symbol = player1Symbol === 'X' ? 'O' : 'X';
-
 			const gamePlayersMe = gamePlayers[playerIDSocket];
-			const gamePlayersOpponent = gamePlayers[match.user_matches.find((userMatch) => userMatch.user_id !== user.id)?.user_id];
+			const opponentMatch = match.user_matches.find((userMatch) => userMatch.user_id !== user.id);
+			const gamePlayersOpponent = opponentMatch ? gamePlayers[opponentMatch.user_id] : undefined;
 
-			
+			gamePlayersMe.playerMove.forEach((cellIndex: number) => {
+				board[cellIndex] = 'X';
+			});
 
-			// gamePlayers[playerIDSocket].playerMove.forEach((cellIndex: number) => {
-			// 	board[cellIndex] = 'X';
-			// });
+			gamePlayersOpponent?.playerMove.forEach((cellIndex: number) => {
+				board[cellIndex] = 'O';
+			});
 
-
-
-			// moves.player1Move.forEach((cellIndex: number) => {
-			// 	board[cellIndex] = player1Symbol;
-			// });
-
-			// moves.player2Move.forEach((cellIndex: number) => {
-			// 	board[cellIndex] = player2Symbol;
-			// });
-
-
-			// if (match.last_player === playerID) {
-			// 	isPlayerTurn = false;
-			// } else {
-			// 	isPlayerTurn = true;
-			// }
+			if (match.last_player === playerIDSocket) {
+				isPlayerTurn = false;
+			} else {
+				isPlayerTurn = true;
+			}
 		}
 	}
 	
@@ -95,5 +83,3 @@
 		</button>
 	{/each}
 </div>
-
-{ JSON.stringify(user)}
