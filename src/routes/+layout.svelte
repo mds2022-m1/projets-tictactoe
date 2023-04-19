@@ -21,6 +21,7 @@
 			{/if}
 
 			{#if $page.data.user}
+				<a href="/graphql" class="mx-3 hover:text-gray-400">GraphQL</a>
 				<a href="/match/new">Créer une partie</a>
 				<form
 					class="logout mx-3 hover:text-gray-400"

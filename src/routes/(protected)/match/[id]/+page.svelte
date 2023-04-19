@@ -86,25 +86,6 @@
 		socket.emit('move', { roomId, cellIndex, playerIDSocket});
 	}
 
-// import gql
-import { gql } from "@apollo/client/core";
-
-const GET_MY_TODOS = gql`
-query ExampleQuery {
-  user {
-    uuid
-    email
-    name
-    game_uuid
-  }
-}`;
-import { query } from "svelte-apollo";
-const todos = query(GET_MY_TODOS);
-console.log($todos);
-
-
-
-
 </script>
 <div class="flex flex-wrap w-48">
 	{#each board as cell, index}
@@ -117,5 +98,3 @@ console.log($todos);
 		</button>
 	{/each}
 </div>
-
-{ JSON.stringify($todos.data)}
