@@ -1,4 +1,4 @@
-<script lg="ts">
+<script lang="ts">
 	import { gql } from '@apollo/client/core';
 	import { query } from 'svelte-apollo';
 
@@ -12,16 +12,25 @@
 			}
 		}
 	`;
-	const allUsers = query(GetAllUser);
-</script>
 
+	interface Users {
+		User: User[];
+	}
+
+	interface User {
+		id: string;
+		email: string;
+		full_name: null | string;
+		pseudo: null | string;
+	}
+	const allUsers = query<Users>(GetAllUser);
+</script>
 
 <div class="flex flex-col items-center justify-center ">
 	<h1 class="text-3xl font-bold mb-8">Afficher tous les utilisateurs</h1>
 </div>
 
-
-{#if $allUsers.data }
+{#if $allUsers.data}
 	<div class="bg-gray-100 p-6 rounded-lg shadow-md">
 		<h2 class="text-2xl font-bold mb-4">Informations utilisateur</h2>
 		{#each $allUsers.data.User as user}
