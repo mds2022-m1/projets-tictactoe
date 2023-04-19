@@ -1,6 +1,7 @@
-<script lg="ts">
+<script lang="ts">
 	import { gql } from '@apollo/client/core';
 	import { query } from 'svelte-apollo';
+	import type { GetUserByEmailQuery } from '$root/lib/operations-types';
 
 	let email = '';
 	const GetUserByEmail = gql`
@@ -13,7 +14,7 @@
 			}
 		}
 	`;
-	const getUserByEmail = query(GetUserByEmail, {
+	const getUserByEmail = query<GetUserByEmailQuery>(GetUserByEmail, {
 		variables: {
 			email,
 		},
@@ -38,7 +39,7 @@
 	/>
 </div>
 
-{#if userData}
+{#if userData && userData.User.length > 0}
 	<div class="bg-gray-100 p-6 rounded-lg shadow-md">
 		<h2 class="text-2xl font-bold mb-4">Informations utilisateur</h2>
 		{#each userData.User as user}

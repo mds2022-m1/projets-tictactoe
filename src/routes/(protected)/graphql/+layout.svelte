@@ -31,6 +31,12 @@
 	>
 		Get User By Email
 	</a>
+	<a
+		href="/graphql/addgame"
+		class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+	>
+		Add Game
+	</a>
 </div>
 
 <slot />
