@@ -47,8 +47,10 @@
 			// const player2Symbol = player1Symbol === 'X' ? 'O' : 'X';
 
 			const gamePlayersMe = gamePlayers[playerIDSocket];
-			const gamePlayersOpponent = gamePlayers[match.user_matches.find((userMatch) => userMatch.user_id !== user.id)?.user_id];
+			// const gamePlayersOpponent = gamePlayers[match.user_matches.];
 
+			// console.log('gamePlayersMe', gamePlayersMe);
+			// console.log('gamePlayersOpponent', gamePlayersOpponent);
 			
 
 			// gamePlayers[playerIDSocket].playerMove.forEach((cellIndex: number) => {
@@ -83,6 +85,26 @@
 		
 		socket.emit('move', { roomId, cellIndex, playerIDSocket});
 	}
+
+// import gql
+import { gql } from "@apollo/client/core";
+
+const GET_MY_TODOS = gql`
+query ExampleQuery {
+  user {
+    uuid
+    email
+    name
+    game_uuid
+  }
+}`;
+import { query } from "svelte-apollo";
+const todos = query(GET_MY_TODOS);
+console.log($todos);
+
+
+
+
 </script>
 <div class="flex flex-wrap w-48">
 	{#each board as cell, index}
@@ -96,4 +118,4 @@
 	{/each}
 </div>
 
-{ JSON.stringify(user)}
+{ JSON.stringify($todos.data)}

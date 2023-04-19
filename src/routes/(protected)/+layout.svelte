@@ -46,6 +46,36 @@
 		setCookie('sessionID', sessionID, 1);
 		socket.userID = userID;
 	});
+
+
+
+		// import ApolloClient
+		import { ApolloClient } from "@apollo/client/core";
+	// import HttpLink 
+	import { HttpLink } from "@apollo/client/link/http";
+	// import InMemoryCache
+	import { InMemoryCache } from "@apollo/client/cache";
+import { setClient } from "svelte-apollo";
+
+ export let authToken = "SvFcmI2Uv9m9XL3C00aYfJ5y9xRWkR9f8TizKeZaBr288t1VXXwQDGVKn3Wndh7n";
+
+ const client = createApolloClient(authToken);
+ setClient(client);
+
+function createApolloClient(authToken) {
+  const link = new HttpLink({
+    uri: "https://pro-ewe-96.hasura.app/v1/graphql",
+    headers: {
+		'x-hasura-admin-secret': authToken,
+    },
+  });
+  const cache = new InMemoryCache();
+  const client = new ApolloClient({
+    link,
+    cache,
+  });
+  return client;
+}
 </script>
 
 <!-- child -->
