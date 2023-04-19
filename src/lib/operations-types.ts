@@ -1717,3 +1717,11 @@ export type GetUserByEmailQuery = {
 		pseudo?: string | null;
 	}>;
 };
+
+export type AddGameMutationVariables = Exact<{
+	name: Scalars['String'];
+  }>;
+  
+  
+  export type AddGameMutation = { __typename?: 'mutation_root', insert_Game_one?: { __typename?: 'Game', name: string } | null };
+  

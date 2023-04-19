@@ -2,7 +2,6 @@
 	import { gql } from '@apollo/client/core';
 	import { mutation } from 'svelte-apollo';
 
-
 	const AddGame = gql`
 		mutation AddGame($name: String!) {
 			insert_Game_one(object: { name: $name}) {
