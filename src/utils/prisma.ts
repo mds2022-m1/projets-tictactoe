@@ -31,11 +31,12 @@ interface MatchInput {
 	moves: string;
 }
 // export function createMatch
-export async function createMatch(matchInput: MatchInput) {
+export async function createMatch(matchInput: MatchInput, user_id: string) {
 	const match = await db.match.create({
 		data: {
 			name: matchInput.name,
 			game_id: matchInput.game_id,
+			creator_id: user_id,
 		},
 	});
 	return match;
@@ -55,12 +56,11 @@ export async function getMatchAndUserMatchById(id: string) {
 }
 
 // insert userMatch by id of match and id of user
-export async function createUserMatch(match_id: string, user_id: string, creator: boolean) {
+export async function createUserMatch(match_id: string, user_id: string) {
     const userMatch = await db.userMatch.create({
         data: {
             match_id: match_id,
             user_id: user_id,
-            creator: creator,
             score: null,
         }
     })

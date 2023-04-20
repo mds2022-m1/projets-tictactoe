@@ -48,57 +48,74 @@ export default function configServerWebsocket(server: HttpServer) {
 		// join room socket
 		socket.on('join', (roomId: string) => {
 			socket.join(roomId);
-			console.log(`${socket.userID} joined room ${roomId}`);
+			socket.roomID = roomId;
+			io.to(roomId).emit('joinOrLeaveGame', io.sockets.adapter.rooms.get(roomId)?.size);
 		});
 
 		// move
-		socket.on('move', async ({ roomId, cellIndex, playerIDSocket }) => {
+		socket.on('move', async ({ roomId, cellIndex, playerID }) => {
 			const match = await getMatchById(roomId);
+
 			if (!match) {
 				return;
 			}
 
-			if (match.winner_id) {
-				io.to(roomId).emit('endGame', match.winner_id);
-				return;
-			}
+			const { moves, user_matches, creator_id } = match;
+			const opponent = user_matches.find((user_match) => user_match.user_id !== creator_id);
+			const player = user_matches.find((user_match) => user_match.user_id === playerID);
 
-			const { moves, user_matches } = match;
+			if (!creator_id || !opponent || !player) return;
 
-			const player_creator = user_matches.find((user_match) => user_match.creator === true);
-			const player_opponent = user_matches.find((user_match) => user_match.creator === false);
+			const gamePlayers = moves
+				? JSON.parse(moves)
+				: {
+						[creator_id]: { playerID: creator_id, playerMove: [] },
+						[opponent.user_id]: { playerID: opponent.user_id, playerMove: [] },
+				  };
 
-			if (!player_creator || !player_opponent) {
-				return;
-			}
+			gamePlayers[playerID].playerMove.push(cellIndex);
 
-			let gamePlayers: GamePlayers;
+			const result = checkResult(gamePlayers, playerID, opponent.user_id);
+			const moveString = JSON.stringify(gamePlayers);
 
-			if (moves) {
-				gamePlayers = JSON.parse(moves);
-			} else {
-				gamePlayers = {
-					[player_creator.user_id]: {
-						playerID: player_creator.user_id,
-						playerMove: [],
-					},
-					[player_opponent.user_id]: {
-						playerID: player_opponent.user_id,
-						playerMove: [],
-					},
-				};
-			}
-
-			gamePlayers[playerIDSocket].playerMove.push(cellIndex);
-			const winner = checkWinner(gamePlayers, playerIDSocket);
-			const move_string = JSON.stringify(gamePlayers);
-
-			if (winner) {
-				updateMatchById(roomId, move_string, playerIDSocket, playerIDSocket, new Date());
-				io.to(roomId).emit('endGame', playerIDSocket);
-			} else {
-				updateMatchById(roomId, move_string, undefined, playerIDSocket);
+			if (result === Result.PROGRESS) {
+				updateMatchById(roomId, moveString, playerID);
 				socket.to(roomId).emit('opponentMove', cellIndex);
+			} else {
+				let playerResult = result;
+				let opponentResult =
+					result === Result.WIN
+						? Result.LOSE
+						: result === Result.LOSE
+						? Result.WIN
+						: result;
+
+				const resultMatch = {
+					player: { id: player.id, result: playerResult },
+					opponent: { id: opponent.id, result: opponentResult },
+				};
+
+				updateMatchAndUserMatchById(
+					roomId,
+					moveString,
+					new Date(),
+					player.id,
+					opponent.id,
+					resultMatch.player.result,
+					resultMatch.opponent.result,
+				);
+				socket.to(roomId).emit('lastMove', cellIndex);
+				io.to(roomId).emit('endGame', resultMatch);
+			}
+		});
+
+		// if leave room or disconnect
+		socket.on('disconnect', () => {
+			if (socket.roomID) {
+				io.to(socket.roomID).emit(
+					'joinOrLeaveGame',
+					io.sockets.adapter.rooms.get(socket.roomID)?.size,
+				);
 			}
 		});
 	});
@@ -129,7 +146,6 @@ async function getMatchById(id: string) {
  * Update Match by id
  * @param {string} id
  * @param {string} moves?
- * @param {string} winner_id?
  * @param {string} last_player?
  * @param {DateTime} finished_at?
  * @returns {Promise<Match>}
@@ -137,7 +153,6 @@ async function getMatchById(id: string) {
 async function updateMatchById(
 	id: string,
 	moves?: string,
-	winner_id?: string,
 	last_player?: string,
 	finished_at?: Date,
 ) {
@@ -147,7 +162,6 @@ async function updateMatchById(
 		},
 		data: {
 			moves: moves,
-			winner_id: winner_id,
 			last_player: last_player,
 			finished_at: finished_at,
 		},
@@ -156,14 +170,87 @@ async function updateMatchById(
 }
 
 /*
- * Check winner
+ * Update Match and UserMatch by id
+ * @param {string} id
+ * @param {string} moves
+ * @param {DateTime} finished_at
+ * @param {string} idUserMatch1
+ * @param {string} idUserMatch2
+ * @param {string} result1
+ * @param {string} result2
+ * @returns {Promise<Match>}
+ * @returns {Promise<UserMatch>}
+ */
+async function updateMatchAndUserMatchById(
+	id: string,
+	moves: string,
+	finished_at: Date,
+	idUserMatch1: string,
+	idUserMatch2: string,
+	result1: string,
+	result2: string,
+) {
+	const updatedUserMatches = await db.match.update({
+		where: {
+			id: id,
+		},
+		data: {
+			moves: moves,
+			finished_at: finished_at,
+			user_matches: {
+				update: [
+					{
+						where: {
+							id: idUserMatch1,
+						},
+						data: {
+							result: result1,
+						},
+					},
+					{
+						where: {
+							id: idUserMatch2,
+						},
+						data: {
+							result: result2,
+						},
+					},
+				],
+			},
+		},
+	});
+	return updatedUserMatches;
+}
+
+/*
+ * Check result of game (win, lose, equality (all cells are filled))
  * @param {GamePlayers} gamePlayers
  * @param {string} playerID
+ * @param {string} opponentID
  * @returns {boolean}
  */
-function checkWinner(gamePlayers: GamePlayers, playerID: string) {
-	const playerMoves = gamePlayers[playerID].playerMove;
-	const winningCombinations = [
+function checkResult(gamePlayers: GamePlayers, playerID: string, opponentID: string) {
+	const playerMove = gamePlayers[playerID].playerMove;
+	const opponentMove = gamePlayers[opponentID].playerMove;
+
+	if (checkWin(playerMove)) {
+		return Result.WIN;
+	} else if (checkWin(opponentMove)) {
+		return Result.LOSE;
+	} else if (playerMove.length + opponentMove.length === 9) {
+		return Result.EQUALITY;
+	} else {
+		return Result.PROGRESS;
+	}
+}
+
+/*
+ * Check win
+ * @param {number[]} playerMove
+ * @returns {boolean}
+ */
+function checkWin(playerMove: number[]) {
+	const win = [
 		[0, 1, 2],
 		[3, 4, 5],
 		[6, 7, 8],
@@ -174,7 +261,14 @@ function checkWinner(gamePlayers: GamePlayers, playerID: string) {
 		[2, 4, 6],
 	];
 
-	return winningCombinations.some((combination) => {
-		return combination.every((cell) => playerMoves.includes(cell));
+	return win.some((win) => {
+		return win.every((cell) => playerMove.includes(cell));
 	});
+}
+
+enum Result {
+	PROGRESS = 'PROGRESS',
+	WIN = 'WIN',
+	LOSE = 'LOSE',
+	EQUALITY = 'EQUALITY',
 }
