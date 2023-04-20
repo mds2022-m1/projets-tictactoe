@@ -37,7 +37,14 @@
 			board[cellIndex] = 'O';
 			isPlayerTurn = true;
 		});
-		
+
+		socket.on('endGame', (winnerID: string) => {
+			if (winnerID === playerIDSocket) {
+				alert('You win!');
+			} else {
+				alert('You lose!');
+			}
+		});
 		
 		if (match.moves) {
 			const gamePlayers: GamePlayers = JSON.parse(match.moves);
@@ -59,7 +66,12 @@
 			} else {
 				isPlayerTurn = true;
 			}
+			if(match.winner_id) {
+				isPlayerTurn = false;
+			}
 		}
+
+
 	}
 	
 	function handleClick(cellIndex: number) {
@@ -71,6 +83,7 @@
 		
 		socket.emit('move', { roomId, cellIndex, playerIDSocket});
 	}
+	
 </script>
 <div class="flex flex-wrap w-48">
 	{#each board as cell, index}
