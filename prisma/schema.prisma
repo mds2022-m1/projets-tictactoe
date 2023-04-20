@@ -39,6 +39,7 @@ model Match {
    last_player  String?
    started_at   DateTime @default(now())
    finished_at  DateTime?
+   winner_id    String?
    game_id      String
    game         Game    @relation(fields: [game_id], references: [id])
    user_matches  UserMatch[]  
