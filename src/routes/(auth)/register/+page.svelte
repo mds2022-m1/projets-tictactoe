@@ -41,12 +41,14 @@
 				{/if}
 				<div class="flex items-center justify-between">
 					<button
-						class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+						class="bg-blue-600 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
 						type="submit"
 					>
 						Créer un compte
 					</button>
 				</div>
+				<br>
+				<p class="error">Si vous avez déjà un compte, veuillez vous <a href="/login" class="font-bold">connecter ici.</a></p>
 			</form>
 		</div>
 	</div>

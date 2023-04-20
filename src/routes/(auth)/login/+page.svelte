@@ -44,7 +44,7 @@
 	<button type="submit">Log in</button>
 </form> -->
 
-<div class="bg-gray-200">
+<div class= "bg-gray-200">
 	<div class="flex justify-center items-center h-screen">
 		<div class="w-full max-w-md">
 			<form
@@ -96,13 +96,17 @@
 				{/if}
 				<div class="flex items-center justify-between">
 					<button
-						class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+						class="bg-blue-600 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
 						type="submit"
 					>
 						Connexion
 					</button>
 				</div>
+				<br>
+				<p class="error">Si vous n'avez pas encore de compte, vous pouvez en <a href="/register" class="font-bold">créer un ici.</a></p>
 			</form>
 		</div>
 	</div>
 </div>
+
+

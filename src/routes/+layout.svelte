@@ -6,13 +6,13 @@
 </script>
 
 <svelte:head>
-	<title>SvelteKit Authentification</title>
+	<title>Tic Tac Toe</title>
 </svelte:head>
 
 <nav>
-	<header class="bg-gray-800 text-white flex justify-between items-center px-4 py-3">
+	<header class="bg-black text-white flex justify-between items-center px-4 py-3">
 		<div class="flex items-center">
-			<a href="/" class="font-bold text-xl">Tictactoe</a>
+			<a href="/" class="font-bold text-xl">Tic Tac Toe</a>
 		</div>
 		<div class="flex items-center">
 			{#if !$page.data.user}
