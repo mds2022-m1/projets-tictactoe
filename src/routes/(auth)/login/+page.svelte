@@ -44,7 +44,7 @@
 	<button type="submit">Log in</button>
 </form> -->
 
-<div class= "bg-gray-200">
+<div>
 	<div class="flex justify-center items-center h-screen">
 		<div class="w-full max-w-md">
 			<form
