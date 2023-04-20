@@ -9,6 +9,7 @@
 	const { user, match } = data;
 	const roomId = match.id;
 	const playerID = user.id;
+	let result = match.user_matches.find((userMatch) => userMatch.user_id === user.id)?.result;
 
 	let startGame = false;
 	let isPlayerTurn = false;
@@ -28,8 +29,8 @@
 		socket.on('joinOrLeaveGame', (playerInRoom: number) => {
 			startGame = playerInRoom === 2 ? true : false;
 		});
-		
-		if (match.finished_at ) {
+
+		if (match.finished_at) {
 			isPlayerTurn = false;
 		} else if (startGame && match.last_player) {
 			isPlayerTurn = match.last_player === user.id ? false : true;
@@ -47,7 +48,10 @@
 		});
 
 		socket.on('endGame', (resultMatch) => {
-			console.log(resultMatch);
+			result =
+				resultMatch.player.user_id === user.id
+					? resultMatch.player.result
+					: resultMatch.opponent.result;
 		});
 
 		if (match.moves) {
@@ -87,18 +91,32 @@
 	{/if} -->
 <!-- </div> -->
 
+{#if result !== 'PROGRESS'}
+	{#if result === 'WIN'}
+		<h1 class="text-4xl font-bold text-center text-blue-600">Vous avez gagné</h1>
+	{:else if result === 'LOSE'}
+		<h1 class="text-4xl font-bold text-center text-blue-600">Vous avez perdu</h1>
+	{:else}
+		<h1 class="text-4xl font-bold text-center text-blue-600">Match nul</h1>
+	{/if}
+{/if}
+
 {#if !startGame}
 	En attente d'un adversaire
 {:else}
-	<div class="flex flex-wrap w-48">
-		{#each board as cell, index}
-			<button
-				class="w-1/3 h-16 border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300 text-xl font-bold text-blue-600"
-				on:click={() => handleClick(index)}
-				disabled={!isPlayerTurn || cell}
-			>
-				{cell || '-'}
-			</button>
-		{/each}
+	<div class="flex flex-col items-center justify-center">
+		<div class="flex flex-col items-center justify-center">
+			<div class="flex flex-wrap w-48">
+				{#each board as cell, index}
+					<button
+						class="w-1/3 h-16 border-2 border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-300 text-xl font-bold text-blue-600"
+						on:click={() => handleClick(index)}
+						disabled={!isPlayerTurn || cell}
+					>
+						{cell || '-'}
+					</button>
+				{/each}
+			</div>
+		</div>
 	</div>
 {/if}

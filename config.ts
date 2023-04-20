@@ -91,8 +91,8 @@ export default function configServerWebsocket(server: HttpServer) {
 						: result;
 
 				const resultMatch = {
-					player: { id: player.id, result: playerResult },
-					opponent: { id: opponent.id, result: opponentResult },
+					player: { id: player.id, user_id: player.user_id, result: playerResult },
+					opponent: { id: opponent.id, user_id: opponent.user_id, result: opponentResult },
 				};
 
 				updateMatchAndUserMatchById(
