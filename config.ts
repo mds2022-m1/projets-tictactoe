@@ -89,6 +89,10 @@ export default function configServerWebsocket(server: HttpServer) {
 						: result === Result.LOSE
 						? Result.WIN
 						: result;
+				// score
+				const playerScore = playerResult === Result.WIN ? 1 : playerResult === Result.LOSE ? 0 : 0.5;
+				const opponentScore = opponentResult === Result.WIN ? 1 : opponentResult === Result.LOSE ? 0 : 0.5;
+
 
 				const resultMatch = {
 					player: { id: player.id, user_id: player.user_id, result: playerResult },
@@ -103,6 +107,8 @@ export default function configServerWebsocket(server: HttpServer) {
 					opponent.id,
 					resultMatch.player.result,
 					resultMatch.opponent.result,
+					playerScore,
+					opponentScore,
 				);
 				socket.to(roomId).emit('lastMove', cellIndex);
 				io.to(roomId).emit('endGame', resultMatch);
@@ -178,6 +184,8 @@ async function updateMatchById(
  * @param {string} idUserMatch2
  * @param {string} result1
  * @param {string} result2
+ * @param {number} score1
+ * @param {number} score2
  * @returns {Promise<Match>}
  * @returns {Promise<UserMatch>}
  */
@@ -189,6 +197,8 @@ async function updateMatchAndUserMatchById(
 	idUserMatch2: string,
 	result1: string,
 	result2: string,
+	score1: number,
+	score2: number,
 ) {
 	const updatedUserMatches = await db.match.update({
 		where: {
@@ -205,6 +215,7 @@ async function updateMatchAndUserMatchById(
 						},
 						data: {
 							result: result1,
+							score: score1,
 						},
 					},
 					{
@@ -213,6 +224,7 @@ async function updateMatchAndUserMatchById(
 						},
 						data: {
 							result: result2,
+							score: score2,
 						},
 					},
 				],
