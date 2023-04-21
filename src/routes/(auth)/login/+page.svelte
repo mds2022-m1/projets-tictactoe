@@ -48,7 +48,7 @@
 	<div class="flex justify-center items-center h-screen">
 		<div class="w-full max-w-md">
 			<form
-				class="bg-white shadow-md rounded px-8 py-6"
+				class="bg-white shadow-2xl rounded px-8 py-6 my-6"
 				action="?/login"
 				method="POST"
 				use:enhance={() => {
