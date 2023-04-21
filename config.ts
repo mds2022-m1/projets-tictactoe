@@ -1,150 +1,274 @@
 import { Server } from 'socket.io';
-import { Server as HttpServer } from 'node:http'
+import { Server as HttpServer } from 'node:http';
 import { v4 as uuidv4 } from 'uuid';
 
-
-
+interface GamePlayers {
+	[playerID: string]: {
+		playerID: string;
+		playerMove: number[];
+	};
+}
 
 // function for init server socket
 export default function configServerWebsocket(server: HttpServer) {
-    // init socket server
-    const io = new Server(server);
+	// init socket server
+	const io = new Server(server);
 
-    // connection event
-    // io.on('connect', (socket) => {
+	// middleware for socket
+	io.use(async (socket, next) => {
+		const sessionID = socket.handshake.auth.sessionID;
 
+		if (sessionID) {
+			socket.sessionID = sessionID;
+			socket.userID = socket.handshake.auth.userID;
+			socket.username = socket.handshake.auth.username;
+			return next();
+		}
+		const username = socket.handshake.auth.username;
+		const userID = socket.handshake.auth.userID;
+		if (!username || !userID) {
+			return next(new Error('invalid username or userID'));
+		}
 
+		socket.sessionID = uuidv4();
+		socket.userID = userID;
+		socket.username = username;
 
+		next();
+	});
 
-    //     // console.log("new client connected");
+	// socket connection
+	io.on('connection', (socket) => {
+		// send session id to client
+		socket.emit('session', {
+			sessionID: socket.sessionID,
+			userID: socket.userID,
+		});
 
-    //     socket.on('test', (data) => {
-    //         console.log(data);
-    //     });
+		// join room socket
+		socket.on('join', (roomId: string) => {
+			socket.join(roomId);
+			socket.roomID = roomId;
+			io.to(roomId).emit('joinOrLeaveGame', io.sockets.adapter.rooms.get(roomId)?.size);
+		});
 
+		// move
+		socket.on('move', async ({ roomId, cellIndex, playerID }) => {
+			const match = await getMatchById(roomId);
 
-    //     socket.on('playerJoined', (matchData) => {
+			if (!match) {
+				return;
+			}
 
-    //         socket.join(matchData.match_id);
-    //         // log room members
-    //         // console.log(io.sockets.adapter.rooms);
+			const { moves, user_matches, creator_id } = match;
+			const opponent = user_matches.find((user_match) => user_match.user_id !== creator_id);
+			const player = user_matches.find((user_match) => user_match.user_id === playerID);
 
-    //         // // io.emit('matchUpdate', {
-    //         // //     match: match,
-    //         // //     action: 'create',
-    //         // //     idUser: socket.id
-    //         // // });
-    //         // // io emit number of users in room
-    //         let users = io.sockets.adapter.rooms.get(matchData.match_id);
+			if (!creator_id || !opponent || !player) return;
 
-    //         // io.to(match.id).emit('matchUpdate', {
-    //         //     match: match,
-    //         //     action: 'create',
-    //         //     idUser: socket.id,
-    //         //     users: users?.size
-    //         // });
+			const gamePlayers = moves
+				? JSON.parse(moves)
+				: {
+						[creator_id]: { playerID: creator_id, playerMove: [] },
+						[opponent.user_id]: { playerID: opponent.user_id, playerMove: [] },
+				  };
 
+			gamePlayers[playerID].playerMove.push(cellIndex);
 
-    //         io.to(matchData.match_id).emit('playerJoined', {
-    //             match_id: matchData.match_id,
-    //             user_id: matchData.user_id,
-    //             users: users?.size
-    //         });
+			const result = checkResult(gamePlayers, playerID, opponent.user_id);
+			const moveString = JSON.stringify(gamePlayers);
 
-    //     });
+			if (result === Result.PROGRESS) {
+				updateMatchById(roomId, moveString, playerID);
+				socket.to(roomId).emit('opponentMove', cellIndex);
+			} else {
+				let playerResult = result;
+				let opponentResult =
+					result === Result.WIN
+						? Result.LOSE
+						: result === Result.LOSE
+						? Result.WIN
+						: result;
 
+				const resultMatch = {
+					player: { id: player.id, user_id: player.user_id, result: playerResult },
+					opponent: { id: opponent.id, user_id: opponent.user_id, result: opponentResult },
+				};
 
+				updateMatchAndUserMatchById(
+					roomId,
+					moveString,
+					new Date(),
+					player.id,
+					opponent.id,
+					resultMatch.player.result,
+					resultMatch.opponent.result,
+				);
+				socket.to(roomId).emit('lastMove', cellIndex);
+				io.to(roomId).emit('endGame', resultMatch);
+			}
+		});
 
-    //     socket.on('playerMoved', (playerMoved) => {
-    //         io.emit("playerMoved", playerMoved);
-    //     });
+		// if leave room or disconnect
+		socket.on('disconnect', () => {
+			if (socket.roomID) {
+				io.to(socket.roomID).emit(
+					'joinOrLeaveGame',
+					io.sockets.adapter.rooms.get(socket.roomID)?.size,
+				);
+			}
+		});
+	});
+}
 
+import prisma from '@prisma/client';
 
-    //     socket.on('disconnect', () => { 
-    //         console.log('user disconnected');
-    //     });
+const db = new prisma.PrismaClient();
 
-    // });
+/*
+ * Get Match by id and include user_matches
+ * @param {string} id
+ * @returns {Promise<Match>}
+ */
+async function getMatchById(id: string) {
+	const match = await db.match.findUnique({
+		where: {
+			id,
+		},
+		include: {
+			user_matches: true,
+		},
+	});
+	return match;
+}
 
-    io.use(async (socket, next) => {
+/*
+ * Update Match by id
+ * @param {string} id
+ * @param {string} moves?
+ * @param {string} last_player?
+ * @param {DateTime} finished_at?
+ * @returns {Promise<Match>}
+ */
+async function updateMatchById(
+	id: string,
+	moves?: string,
+	last_player?: string,
+	finished_at?: Date,
+) {
+	const match = await db.match.update({
+		where: {
+			id,
+		},
+		data: {
+			moves: moves,
+			last_player: last_player,
+			finished_at: finished_at,
+		},
+	});
+	return match;
+}
 
-        const sessionID = socket.handshake.auth.sessionID;
+/*
+ * Update Match and UserMatch by id
+ * @param {string} id
+ * @param {string} moves
+ * @param {DateTime} finished_at
+ * @param {string} idUserMatch1
+ * @param {string} idUserMatch2
+ * @param {string} result1
+ * @param {string} result2
+ * @returns {Promise<Match>}
+ * @returns {Promise<UserMatch>}
+ */
+async function updateMatchAndUserMatchById(
+	id: string,
+	moves: string,
+	finished_at: Date,
+	idUserMatch1: string,
+	idUserMatch2: string,
+	result1: string,
+	result2: string,
+) {
+	const updatedUserMatches = await db.match.update({
+		where: {
+			id: id,
+		},
+		data: {
+			moves: moves,
+			finished_at: finished_at,
+			user_matches: {
+				update: [
+					{
+						where: {
+							id: idUserMatch1,
+						},
+						data: {
+							result: result1,
+						},
+					},
+					{
+						where: {
+							id: idUserMatch2,
+						},
+						data: {
+							result: result2,
+						},
+					},
+				],
+			},
+		},
+	});
+	return updatedUserMatches;
+}
 
-        if (sessionID) {
-            socket.sessionID = sessionID;
-            socket.userID = socket.handshake.auth.userID;
-            socket.username = socket.handshake.auth.username;
-            return next();
-        }
-        const username = socket.handshake.auth.username;
-        const userID = socket.handshake.auth.userID;
-        if (!username || !userID) {
-            return next(new Error("invalid username or userID"));
-        }
-        
-        socket.sessionID = uuidv4();
-        socket.userID = userID;
-        socket.username = username;
+/*
+ * Check result of game (win, lose, equality (all cells are filled))
+ * @param {GamePlayers} gamePlayers
+ * @param {string} playerID
+ * @param {string} opponentID
+ * @returns {boolean}
+ */
+function checkResult(gamePlayers: GamePlayers, playerID: string, opponentID: string) {
+	const playerMove = gamePlayers[playerID].playerMove;
+	const opponentMove = gamePlayers[opponentID].playerMove;
 
+	if (checkWin(playerMove)) {
+		return Result.WIN;
+	} else if (checkWin(opponentMove)) {
+		return Result.LOSE;
+	} else if (playerMove.length + opponentMove.length === 9) {
+		return Result.EQUALITY;
+	} else {
+		return Result.PROGRESS;
+	}
+}
 
-        next();
-    });
+/*
+ * Check win
+ * @param {number[]} playerMove
+ * @returns {boolean}
+ */
+function checkWin(playerMove: number[]) {
+	const win = [
+		[0, 1, 2],
+		[3, 4, 5],
+		[6, 7, 8],
+		[0, 3, 6],
+		[1, 4, 7],
+		[2, 5, 8],
+		[0, 4, 8],
+		[2, 4, 6],
+	];
 
-    io.on("connection", (socket) => {
+	return win.some((win) => {
+		return win.every((cell) => playerMove.includes(cell));
+	});
+}
 
-        socket.emit("session", {
-            sessionID: socket.sessionID,
-            userID: socket.userID,
-        });
-
-
-        //     // console.log("new client connected");
-
-    //     socket.on('test', (data) => {
-    //         console.log(data);
-    //     });
-
-
-    //     socket.on('playerJoined', (matchData) => {
-
-    //         socket.join(matchData.match_id);
-    //         // log room members
-    //         // console.log(io.sockets.adapter.rooms);
-
-    //         // // io.emit('matchUpdate', {
-    //         // //     match: match,
-    //         // //     action: 'create',
-    //         // //     idUser: socket.id
-    //         // // });
-    //         // // io emit number of users in room
-    //         let users = io.sockets.adapter.rooms.get(matchData.match_id);
-
-    //         // io.to(match.id).emit('matchUpdate', {
-    //         //     match: match,
-    //         //     action: 'create',
-    //         //     idUser: socket.id,
-    //         //     users: users?.size
-    //         // });
-
-
-    //         io.to(matchData.match_id).emit('playerJoined', {
-    //             match_id: matchData.match_id,
-    //             user_id: matchData.user_id,
-    //             users: users?.size
-    //         });
-
-    //     });
-
-
-
-    //     socket.on('playerMoved', (playerMoved) => {
-    //         io.emit("playerMoved", playerMoved);
-    //     });
-
-
-    //     socket.on('disconnect', () => { 
-    //         console.log('user disconnected');
-    //     });
-
-    });
+enum Result {
+	PROGRESS = 'PROGRESS',
+	WIN = 'WIN',
+	LOSE = 'LOSE',
+	EQUALITY = 'EQUALITY',
 }

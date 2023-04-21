@@ -35,6 +35,9 @@ model Game {
 model Match {
    id           String   @id @default(uuid())
    name         String
+   moves        String?
+   creator_id   String
+   last_player  String?
    started_at   DateTime @default(now())
    finished_at  DateTime?
    game_id      String
@@ -45,11 +48,13 @@ model Match {
 // user match model
 model UserMatch {
   id          String   @id @default(uuid())
-  user_id   String
-  match_id  String
-  score     Int?
-  user      User   @relation(fields: [user_id], references: [id])
-  match     Match  @relation(fields: [match_id], references: [id])
+  join        DateTime @default(now())
+  user_id     String
+  match_id    String
+  result      String @default("PROGRESS")
+  score       Int?
+  user        User   @relation(fields: [user_id], references: [id])
+  match       Match  @relation(fields: [match_id], references: [id])
 }
 
 // elo model

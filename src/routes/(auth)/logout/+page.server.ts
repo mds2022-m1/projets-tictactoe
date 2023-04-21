@@ -15,8 +15,6 @@ export const actions = {
 		});
 
 		cookies.delete('sessionID');
-		
-
 
 		// redirect the user
 		throw redirect(302, '/login');
