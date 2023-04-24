@@ -112,8 +112,8 @@ export default function configServerWebsocket(server: HttpServer) {
 				const playerEloFinal = elo.updateRating(expectedScorePlayer, playerScore, playerElo?.ranking_elo);
 				const  opponentEloFinal = elo.updateRating(expectedScoreOpponent, opponentScore, opponentElo?.ranking_elo);
 
-				updateEloById(playerElo?.id, playerEloFinal)
-				updateEloById(opponentElo?.id, opponentEloFinal)
+				await updateEloById(playerElo?.id, playerEloFinal)
+				await updateEloById(opponentElo?.id, opponentEloFinal)
 
 				const resultMatch = {
 					player: { id: player.id, user_id: player.user_id, result: playerResult },
@@ -276,7 +276,7 @@ async function getEloByGameIdAndUserId(game_id: string, user_id:string){
 * @param {number} ranking_elo
 */
 async function updateEloById(id:string, ranking_elo:number) {
-	await db.elo.update({
+	const elo = await db.elo.update({
 		where: {
 			id
 		},
@@ -284,6 +284,7 @@ async function updateEloById(id:string, ranking_elo:number) {
 			ranking_elo
 		}
 	})
+	return elo;
 }
 
 /*
