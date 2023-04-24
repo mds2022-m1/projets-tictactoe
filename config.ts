@@ -1,6 +1,9 @@
 import { Server } from 'socket.io';
 import { Server as HttpServer } from 'node:http';
 import { v4 as uuidv4 } from 'uuid';
+import EloRank from 'elo-rank';
+
+
 
 interface GamePlayers {
 	[playerID: string]: {
@@ -64,6 +67,8 @@ export default function configServerWebsocket(server: HttpServer) {
 			const opponent = user_matches.find((user_match) => user_match.user_id !== creator_id);
 			const player = user_matches.find((user_match) => user_match.user_id === playerID);
 
+
+
 			if (!creator_id || !opponent || !player) return;
 
 			const gamePlayers = moves
@@ -93,6 +98,22 @@ export default function configServerWebsocket(server: HttpServer) {
 				const playerScore = playerResult === Result.WIN ? 1 : playerResult === Result.LOSE ? 0 : 0.5;
 				const opponentScore = opponentResult === Result.WIN ? 1 : opponentResult === Result.LOSE ? 0 : 0.5;
 
+				const playerElo = await getEloByGameIdAndUserId(match.game_id, player.user_id)
+				const opponentElo = await getEloByGameIdAndUserId(match.game_id, opponent.user_id)
+
+				if(!playerElo) return
+				if(!opponentElo) return
+
+				let elo = new EloRank();
+
+				let expectedScorePlayer = elo.getExpected(playerElo?.ranking_elo, opponentElo?.ranking_elo);
+  				let expectedScoreOpponent = elo.getExpected(opponentElo?.ranking_elo, playerElo?.ranking_elo);
+
+				const playerEloFinal = elo.updateRating(expectedScorePlayer, playerScore, playerElo?.ranking_elo);
+				const  opponentEloFinal = elo.updateRating(expectedScoreOpponent, opponentScore, opponentElo?.ranking_elo);
+
+				updateEloById(playerElo?.id, playerEloFinal)
+				updateEloById(opponentElo?.id, opponentEloFinal)
 
 				const resultMatch = {
 					player: { id: player.id, user_id: player.user_id, result: playerResult },
@@ -232,6 +253,37 @@ async function updateMatchAndUserMatchById(
 		},
 	});
 	return updatedUserMatches;
+}
+
+/*
+* Get Elo with game_id and user_id
+* @param {string} game_id
+* @param {string} user_id
+* @returns {Promise<Elo>}
+*/
+async function getEloByGameIdAndUserId(game_id: string, user_id:string){
+	const elo = await db.elo.findFirst({
+		where: {
+			game_id: game_id,
+			user_id: user_id
+		},
+	})
+	return elo;
+}
+/*
+* Update Elo player by id
+* @param {string} id
+* @param {number} ranking_elo
+*/
+async function updateEloById(id:string, ranking_elo:number) {
+	await db.elo.update({
+		where: {
+			id
+		},
+		data:{
+			ranking_elo
+		}
+	})
 }
 
 /*
