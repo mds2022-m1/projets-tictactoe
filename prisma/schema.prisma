@@ -62,7 +62,7 @@ model Elo {
   id          String   @id @default(uuid())
   user_id     String
   game_id     String
-  ranking_elo Int
+  ranking_elo Int     @default(1000)
   user        User    @relation(fields: [user_id], references: [id])
   game        Game    @relation(fields: [game_id], references: [id])
 }
