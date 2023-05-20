@@ -57,14 +57,14 @@ export async function getMatchAndUserMatchById(id: string) {
 
 // insert userMatch by id of match and id of user
 export async function createUserMatch(match_id: string, user_id: string) {
-    const userMatch = await db.userMatch.create({
-        data: {
-            match_id: match_id,
-            user_id: user_id,
-            score: null,
-        }
-    })
-    return userMatch;
+	const userMatch = await db.userMatch.create({
+		data: {
+			match_id: match_id,
+			user_id: user_id,
+			score: null,
+		}
+	})
+	return userMatch;
 }
 
 // export function getGames with Load type
@@ -100,4 +100,36 @@ export async function updateMovesMatchById(id: string, moves: string) {
 		},
 	});
 	return match;
+}
+
+/*
+ * Get Elo by user_id and game_id
+ * @param {string} user_id
+ * @param {string} game_id
+ * @returns {Promise<Elo>}
+ */
+export async function getEloByUserIdAndGameId(user_id: string, game_id: string) {
+	const elo = await db.elo.findFirst({
+		where: {
+			user_id: user_id,
+			game_id: game_id
+		},
+	});
+	return elo;
+}
+
+/*
+ * Create Elo by user_id and game_id
+ * @param {string} user_id
+ * @param {string} game_id
+ * @returns {Promise<Elo>}
+ */
+export async function createEloByUserIdAndGameId(user_id: string, game_id: string) {
+	const elo = await db.elo.create({
+		data: {
+			user_id: user_id,
+			game_id: game_id
+		},
+	});
+	return elo;
 }
