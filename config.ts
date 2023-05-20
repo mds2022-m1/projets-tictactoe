@@ -64,75 +64,75 @@ export default function configServerWebsocket(server: HttpServer) {
 			}
 
 			const { moves, user_matches, creator_id } = match;
-			const opponent = user_matches.find((user_match) => user_match.user_id !== creator_id);
 			const player = user_matches.find((user_match) => user_match.user_id === playerID);
+			const opponent = user_matches.find((user_match) => user_match.user_id !== playerID);
 
+			if (!creator_id || !player || !opponent) return;
 
-
-			if (!creator_id || !opponent || !player) return;
-
-			const gamePlayers = moves
+			const movesJson = moves
 				? JSON.parse(moves)
 				: {
-						[creator_id]: { playerID: creator_id, playerMove: [] },
-						[opponent.user_id]: { playerID: opponent.user_id, playerMove: [] },
-				  };
+					[player.user_id]: { "playerID": player.id, playerMove: [] },
+					[opponent.user_id]: { "playerID": opponent.id, playerMove: [] },
+				};
 
-			gamePlayers[playerID].playerMove.push(cellIndex);
+			movesJson[playerID].playerMove.push(cellIndex);
 
-			const result = checkResult(gamePlayers, playerID, opponent.user_id);
-			const moveString = JSON.stringify(gamePlayers);
+			// check result 
+			const playerResult = checkResult(movesJson, playerID, playerID === player.user_id ? opponent.user_id : player.user_id);
+			const moveString = JSON.stringify(movesJson);
 
-			if (result === Result.PROGRESS) {
+
+			if (playerResult === Result.PROGRESS) {
 				updateMatchById(roomId, moveString, playerID);
 				socket.to(roomId).emit('opponentMove', cellIndex);
 			} else {
-				let playerResult = result;
-				let opponentResult =
-					result === Result.WIN
-						? Result.LOSE
-						: result === Result.LOSE
-						? Result.WIN
-						: result;
+				const opponentResult = playerResult === Result.WIN ? Result.LOSE : playerResult === Result.LOSE ? Result.WIN : playerResult;
+
 				// score
 				const playerScore = playerResult === Result.WIN ? 1 : playerResult === Result.LOSE ? 0 : 0.5;
 				const opponentScore = opponentResult === Result.WIN ? 1 : opponentResult === Result.LOSE ? 0 : 0.5;
 
+				// get elo of player and opponent
 				const playerElo = await getEloByGameIdAndUserId(match.game_id, player.user_id)
 				const opponentElo = await getEloByGameIdAndUserId(match.game_id, opponent.user_id)
 
-				if(!playerElo) return
-				if(!opponentElo) return
+				if (!playerElo) return
+				if (!opponentElo) return
+
+				// calculate elo of player and opponent
 
 				let elo = new EloRank();
 
 				let expectedScorePlayer = elo.getExpected(playerElo?.ranking_elo, opponentElo?.ranking_elo);
-  				let expectedScoreOpponent = elo.getExpected(opponentElo?.ranking_elo, playerElo?.ranking_elo);
+				let expectedScoreOpponent = elo.getExpected(opponentElo?.ranking_elo, playerElo?.ranking_elo);
 
 				const playerEloFinal = elo.updateRating(expectedScorePlayer, playerScore, playerElo?.ranking_elo);
-				const  opponentEloFinal = elo.updateRating(expectedScoreOpponent, opponentScore, opponentElo?.ranking_elo);
+				const opponentEloFinal = elo.updateRating(expectedScoreOpponent, opponentScore, opponentElo?.ranking_elo);
 
+				// update elo of player and opponent
 				await updateEloById(playerElo?.id, playerEloFinal)
 				await updateEloById(opponentElo?.id, opponentEloFinal)
 
+				// update match and userMatch
 				const resultMatch = {
 					player: { id: player.id, user_id: player.user_id, result: playerResult },
 					opponent: { id: opponent.id, user_id: opponent.user_id, result: opponentResult },
 				};
+				await updateMatchById(roomId, moveString, playerID, new Date())
+				await updateUserMatchById(player.id, resultMatch.player.result, playerScore)
+				await updateUserMatchById(opponent.id, resultMatch.opponent.result, opponentScore)
 
-				updateMatchAndUserMatchById(
-					roomId,
-					moveString,
-					new Date(),
-					player.id,
-					opponent.id,
-					resultMatch.player.result,
-					resultMatch.opponent.result,
-					playerScore,
-					opponentScore,
-				);
 				socket.to(roomId).emit('lastMove', cellIndex);
+				// send result to client
 				io.to(roomId).emit('endGame', resultMatch);
+
+
+
+
+
+
+
 			}
 		});
 
@@ -177,12 +177,7 @@ async function getMatchById(id: string) {
  * @param {DateTime} finished_at?
  * @returns {Promise<Match>}
  */
-async function updateMatchById(
-	id: string,
-	moves?: string,
-	last_player?: string,
-	finished_at?: Date,
-) {
+async function updateMatchById(id: string, moves?: string, last_player?: string, finished_at?: Date) {
 	const match = await db.match.update({
 		where: {
 			id,
@@ -197,63 +192,25 @@ async function updateMatchById(
 }
 
 /*
- * Update Match and UserMatch by id
+ * Update UserMatch by id
  * @param {string} id
- * @param {string} moves
- * @param {DateTime} finished_at
- * @param {string} idUserMatch1
- * @param {string} idUserMatch2
- * @param {string} result1
- * @param {string} result2
- * @param {number} score1
- * @param {number} score2
- * @returns {Promise<Match>}
+ * @param {string} result
+ * @param {number} score
  * @returns {Promise<UserMatch>}
  */
-async function updateMatchAndUserMatchById(
-	id: string,
-	moves: string,
-	finished_at: Date,
-	idUserMatch1: string,
-	idUserMatch2: string,
-	result1: string,
-	result2: string,
-	score1: number,
-	score2: number,
-) {
-	const updatedUserMatches = await db.match.update({
+async function updateUserMatchById(id: string, result: string, score: number) {
+	const userMatch = await db.userMatch.update({
 		where: {
-			id: id,
+			id,
 		},
 		data: {
-			moves: moves,
-			finished_at: finished_at,
-			user_matches: {
-				update: [
-					{
-						where: {
-							id: idUserMatch1,
-						},
-						data: {
-							result: result1,
-							score: score1,
-						},
-					},
-					{
-						where: {
-							id: idUserMatch2,
-						},
-						data: {
-							result: result2,
-							score: score2,
-						},
-					},
-				],
-			},
+			result: result,
+			score: score,
 		},
 	});
-	return updatedUserMatches;
+	return userMatch;
 }
+
 
 /*
 * Get Elo with game_id and user_id
@@ -261,7 +218,7 @@ async function updateMatchAndUserMatchById(
 * @param {string} user_id
 * @returns {Promise<Elo>}
 */
-async function getEloByGameIdAndUserId(game_id: string, user_id:string){
+async function getEloByGameIdAndUserId(game_id: string, user_id: string) {
 	const elo = await db.elo.findFirst({
 		where: {
 			game_id: game_id,
@@ -275,12 +232,12 @@ async function getEloByGameIdAndUserId(game_id: string, user_id:string){
 * @param {string} id
 * @param {number} ranking_elo
 */
-async function updateEloById(id:string, ranking_elo:number) {
+async function updateEloById(id: string, ranking_elo: number) {
 	const elo = await db.elo.update({
 		where: {
 			id
 		},
-		data:{
+		data: {
 			ranking_elo
 		}
 	})
