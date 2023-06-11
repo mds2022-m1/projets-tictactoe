@@ -22,6 +22,7 @@
 
 			{#if $page.data.user}
 				<a href="/match/new" class="logout mx-3 hover:text-gray-400">Créer une partie</a>
+				<a href="/match/history" class="mx-3 hover:text-gray-400">Historique</a>
 				<form
 					class="logout mx-3 hover:text-gray-400"
 					action="/logout"
