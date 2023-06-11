@@ -133,3 +133,25 @@ export async function createEloByUserIdAndGameId(user_id: string, game_id: strin
 	});
 	return elo;
 }
+
+
+/*
+ * Get all UserMatch by user_id include Match and Game
+ * @param {string} user_id
+ * @returns {Promise<UserMatch>}
+ */
+export async function getAllUserMatchByUserId(user_id: string) {
+	const userMatchs = await db.userMatch.findMany({
+		where: {
+			user_id: user_id,
+		},include:
+		{
+			match: {
+				include: {
+					game: true,
+				}
+			}
+		},
+	});
+	return userMatchs;
+}	

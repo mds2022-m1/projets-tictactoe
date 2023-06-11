@@ -4,11 +4,11 @@
 	export let form;
 </script>
 
-<div class="bg-gray-200">
+<div>
 	<div class="flex justify-center items-center h-screen">
 		<div class="w-full max-w-md">
 			<form
-				class="bg-white shadow-md rounded px-8 py-6"
+				class="bg-gray-100 shadow-2xl rounded px-8 py-6"
 				action="?/register"
 				method="POST"
 				use:enhance
@@ -41,12 +41,14 @@
 				{/if}
 				<div class="flex items-center justify-between">
 					<button
-						class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+						class="bg-blue-600 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
 						type="submit"
 					>
 						Créer un compte
 					</button>
 				</div>
+				<br>
+				<p class="error">Si vous avez déjà un compte, veuillez vous <a href="/login" class="font-bold">connecter ici.</a></p>
 			</form>
 		</div>
 	</div>
