@@ -77,21 +77,7 @@
 	}
 </script>
 
-<!-- <div> -->
-<!-- {#if isGameEnded}
-		{#if winner}
-			<h1 class="text-2xl font-bold text-blue-600">Vous avez gagné</h1>
-		{:else}
-			<h1 class="text-2xl font-bold text-blue-600">Vous avez perdu</h1>
-		{/if}
-	{:else if isPlayerTurn}
-		<h1 class="text-2xl font-bold text-blue-600">C'est à vous de jouer</h1>
-	{:else}
-		<h1 class="text-2xl font-bold text-blue-600">C'est au tour de votre adversaire</h1>
-	{/if} -->
-<!-- </div> -->
-
-<div class="flex justify-center items-center h-screen bg-[url('/Users/lucas/Desktop/tictactoe_dev/projets-tictactoe/src/lib/images/background.png')]">
+<div class="flex justify-center items-center h-screen bg-[url('$lib/images/background.png')]"></div>
 		<div class="flex flex-col items-center justify-center w-1/2 h-1/2 bg-gray-100 rounded-lg shadow-2xl">
 			{#if result !== 'PROGRESS'}
 				{#if result === 'WIN'}

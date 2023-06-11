@@ -51,15 +51,6 @@
 		align-items: center;
 		height: 370px;
 		width: 700px;
-		margin-top: 125px;
-		margin-left: 380px;
-	}
-
-	div{
-		background-color: white;
-		height: 80%;
-		width: 50%;
-		margin-top: 150px;
 	}
 
 	h1 {

@@ -9,7 +9,7 @@
 	<title>Tic Tac Toe</title>
 </svelte:head>
 
-<nav>
+<nav class="fixed top-0 left-0 w-full z-10">
 	<header class="bg-black text-white flex justify-between items-center px-4 py-3">
 		<div class="flex items-center">
 			<a href="/" class="font-bold text-xl">Tic Tac Toe</a>
@@ -41,6 +41,6 @@
 	</header>
 </nav>
 
-<main>
+<main class="flex flex-col items-center justify-center w-full h-full">
 	<slot />
 </main>
