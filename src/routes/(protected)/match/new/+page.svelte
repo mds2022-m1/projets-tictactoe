@@ -6,7 +6,7 @@
 
 <form method="POST" autocomplete="off">
 	<div class="flex flex-col items-center justify-center h-screen">
-		<div class="flex flex-col items-center justify-center w-1/2 h-1/2 bg-gray-200 rounded-lg">
+		<div class="flex flex-col items-center justify-center w-1/2 h-1/2 bg-gray-100 rounded-lg shadow-2xl">
 			<div class="flex flex-row items-center justify-center w-full h-full">
 				{#if data.props.games}
 					{#each data.props.games as game}
@@ -32,7 +32,7 @@
 					<input
 						name="name"
 						type="text"
-						class="w-3/4 h-1/2 border-2 border-gray-300 rounded-lg"
+						class="w-3/4 h-1/2 border-2 border-gray-300 rounded-lg p-2"
 						placeholder="Nom du match"
 					/>
 					{#if form?.errors.name}
@@ -40,8 +40,8 @@
 					{/if}
 				</div>
 			</div>
-			<div class="flex flex-col items-center justify-center w-3/4 h-1/4">
-				<button class="w-3/4 h-1/2 bg-blue-500 rounded-lg" type="submit"
+			<div class="flex flex-col items-center justify-center w-3/4 h-1/4 pb-6">
+				<button class="bg-blue-600 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline" type="submit"
 					>Créer le match</button
 				>
 			</div>

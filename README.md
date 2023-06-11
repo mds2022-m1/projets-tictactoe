@@ -1,3 +1,38 @@
+## Lancer en local
+
+Pour lancer l'application en local, il faut tout d'abord dupliquer le fichier **env.env** et le renommer en **.env**. Cela permet de spécifier le chemin relatif à la base de données.
+
+Pour lancer l'application en local, il est conseillé de laisser la valeur de `DATABASE_URL` à `file:./dev.db` dans le fichier `.env`. Une fois cela fait, il faut se positionner à la racine du projet et lancer les commandes suivantes :
+
+```
+npm i
+npx prisma db seed
+npm run dev
+
+```
+
+> La commande npx prisma db seed permet de remplir la base de données avec un jeu de données prédéfini.
+> 
+
+## Prisma
+
+Le fichier *prisma/seed.ts* contient un jeu de données pouvant être inséré dans la base de données. Pour cela, il suffit d'exécuter la commande :
+
+```
+npx prisma db seed
+
+```
+
+Cette commande permet de remplir la base de données avec les données du jeu.
+
+Il est également possible de générer les types Prisma à partir du modèle de la base de données en utilisant la commande suivante :
+
+```
+npx prisma generate
+
+```
+
+
 # create-svelte
 
 Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
