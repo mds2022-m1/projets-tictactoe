@@ -6,6 +6,7 @@ Pour lancer l'application en local, il est conseillé de laisser la valeur de `D
 
 ```
 npm i
+npx prisma db push
 npx prisma db seed
 npm run dev
 
