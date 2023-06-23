@@ -4,7 +4,7 @@
 	export let form: any;
 </script>
 
-<form method="POST" autocomplete="off">
+<form method="POST" autocomplete="off" class="w-full">
 	<div class="flex flex-col items-center justify-center h-screen">
 		<div class="flex flex-col items-center justify-center w-1/2 h-1/2 bg-gray-100 rounded-lg shadow-2xl">
 			<div class="flex flex-row items-center justify-center w-full h-full">
